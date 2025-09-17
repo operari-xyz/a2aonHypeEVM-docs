@@ -1,11 +1,12 @@
 import { Code, Play, Copy, CheckCircle } from 'lucide-react'
 import CodeBlock from '@/components/CodeBlock'
+import { FACILITATOR_URL } from '@/lib/config'
 
 const directApiExample = `// 1. Direct API Usage - Simplest approach
 // Just make HTTP calls to the facilitator
 
 // Verify payment
-const verifyResponse = await fetch('http://localhost:3000/facilitator/verify', {
+const verifyResponse = await fetch('${FACILITATOR_URL}/facilitator/verify', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
@@ -25,7 +26,7 @@ const verification = await verifyResponse.json();
 
 // Settle payment if valid
 if (verification.isValid) {
-  const settleResponse = await fetch('http://localhost:3000/facilitator/settle', {
+  const settleResponse = await fetch('${FACILITATOR_URL}/facilitator/settle', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -40,248 +41,101 @@ if (verification.isValid) {
   console.log('Payment completed!', settlement.transaction);
 }`
 
-const payerExample = `// 2. Payer Service - For creating payment authorizations
-import { ethers } from 'ethers';
+const curlExample = `# 2. cURL Examples - Works with any language
 
-const EIP712_DOMAIN = {
-  name: "USD₮0",
-  version: "1", 
-  chainId: 999,
-  verifyingContract: "0xB8CE59FC3717ada4C02eaDF9682A9e934F625ebb"
-};
-
-const EIP712_TYPES = {
-  TransferWithAuthorization: [
-    { name: "from", type: "address" },
-    { name: "to", type: "address" },
-    { name: "value", type: "uint256" },
-    { name: "validAfter", type: "uint256" },
-    { name: "validBefore", type: "uint256" },
-    { name: "nonce", type: "bytes32" }
-  ]
-};
-
-class PayerService {
-  private wallet: ethers.Wallet;
-
-  constructor(privateKey: string) {
-    const provider = new ethers.providers.JsonRpcProvider('https://rpc.hyperliquid.xyz/evm');
-    this.wallet = new ethers.Wallet(privateKey, provider);
-  }
-
-  async createPaymentData(to: string, amount: string) {
-    const now = Math.floor(Date.now() / 1000);
-    const authorization = {
-      from: this.wallet.address,
-      to: to,
-      value: ethers.utils.parseUnits(amount, 6).toString(),
-      validAfter: now.toString(),
-      validBefore: (now + 3600).toString(), // 1 hour validity
-      nonce: ethers.utils.hexlify(ethers.utils.randomBytes(32))
-    };
-
-    const signature = await this.wallet._signTypedData(
-      EIP712_DOMAIN,
-      EIP712_TYPES,
-      authorization
-    );
-
-    return { signature, authorization };
-  }
-}`
-
-const receiverExample = `// 3. Receiver Service - For processing payments
-class ReceiverService {
-  async verifyPaymentWithFacilitator(facilitatorUrl: string, paymentData: any) {
-    const response = await fetch(\`\${facilitatorUrl}/facilitator/verify\`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(paymentData)
-    });
-    
-    return response.json();
-  }
-
-  async settlePaymentWithFacilitator(facilitatorUrl: string, paymentData: any) {
-    const response = await fetch(\`\${facilitatorUrl}/facilitator/settle\`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ payment: paymentData })
-    });
-    
-    return response.json();
-  }
-
-  async processPayment(facilitatorUrl: string, paymentData: any) {
-    try {
-      // Step 1: Verify payment
-      const verification = await this.verifyPaymentWithFacilitator(facilitatorUrl, paymentData);
-      
-      if (!verification.isValid) {
-        throw new Error(\`Payment invalid: \${verification.invalidReason}\`);
-      }
-
-      // Step 2: Settle payment
-      const settlement = await this.settlePaymentWithFacilitator(facilitatorUrl, paymentData);
-      
-      if (!settlement.success) {
-        throw new Error(\`Settlement failed: \${settlement.errorReason}\`);
-      }
-
-      return settlement;
-    } catch (error) {
-      console.error('Payment processing failed:', error);
-      throw error;
+# Verify payment
+curl -X POST ${FACILITATOR_URL}/facilitator/verify \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "signature": "0x...",
+    "authorization": {
+      "from": "0xPayerAddress",
+      "to": "0xReceiverAddress",
+      "value": "10000000",
+      "validAfter": "1757710504",
+      "validBefore": "1757714704",
+      "nonce": "0x..."
     }
-  }
-}`
+  }'
 
-const completeWorkflowExample = `// Complete workflow example
-import { PayerService } from './payer-service';
-import { ReceiverService } from './receiver-service';
-
-async function main() {
-  // Step 1: Payer creates payment
-  const payer = new PayerService('payer_private_key');
-  const paymentData = await payer.createPaymentData(
-    '0xReceiverAddress',
-    '10.0' // 10 USDT0
-  );
-
-  // Step 2: Payer sends to receiver (via your communication channel)
-  await payer.sendPaymentToReceiver('https://receiver.com/api/payments', paymentData);
-
-  // Step 3: Receiver processes payment
-  const receiver = new ReceiverService(); // No private key needed!
-
-  // Verify payment (optional)
-  const verification = await receiver.verifyPaymentWithFacilitator(
-    'http://localhost:3000',
-    paymentData
-  );
-
-  if (verification.isValid) {
-    // Settle payment (facilitator pays gas)
-    const settlement = await receiver.settlePaymentWithFacilitator(
-      'http://localhost:3000',
-      paymentData
-    );
-    
-    if (settlement.success) {
-      console.log('Payment completed!', settlement.transaction);
+# Settle payment
+curl -X POST ${FACILITATOR_URL}/facilitator/settle \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "payment": {
+      "signature": "0x...",
+      "authorization": {
+        "from": "0xPayerAddress",
+        "to": "0xReceiverAddress",
+        "value": "10000000",
+        "validAfter": "1757710504",
+        "validBefore": "1757714704",
+        "nonce": "0x..."
+      }
     }
-  }
+  }'`
+
+const pythonExample = `# 3. Python Example
+import requests
+import json
+
+FACILITATOR_URL = "${FACILITATOR_URL}"
+
+def verify_payment(payment_data):
+    response = requests.post(
+        f"{FACILITATOR_URL}/facilitator/verify",
+        headers={"Content-Type": "application/json"},
+        json=payment_data
+    )
+    return response.json()
+
+def settle_payment(payment_data):
+    response = requests.post(
+        f"{FACILITATOR_URL}/facilitator/settle",
+        headers={"Content-Type": "application/json"},
+        json={"payment": payment_data}
+    )
+    return response.json()
+
+# Usage
+payment_data = {
+    "signature": "0x...",
+    "authorization": {
+        "from": "0xPayerAddress",
+        "to": "0xReceiverAddress",
+        "value": "10000000",
+        "validAfter": "1757710504",
+        "validBefore": "1757714704",
+        "nonce": "0x..."
+    }
 }
 
-main().catch(console.error);`
+# Verify first (optional)
+verification = verify_payment(payment_data)
+if verification["isValid"]:
+    # Then settle
+    settlement = settle_payment(payment_data)
+    print("Payment completed!", settlement["transaction"])`
 
-const errorHandlingExample = `// Error handling example
+const errorHandlingExample = `# 4. Error Handling
 try {
-  const result = await receiver.processPayment(facilitatorUrl, paymentData);
-  console.log('Payment successful:', result);
+  const verification = await fetch('${FACILITATOR_URL}/facilitator/verify', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(paymentData)
+  });
+  
+  const result = await verification.json();
+  
+  if (!result.isValid) {
+    console.log('Payment invalid:', result.invalidReason);
+    return;
+  }
+  
+  // Proceed with settlement...
 } catch (error) {
-  if (error.message.includes('authorization_expired')) {
-    // Handle expired authorization
-    console.log('Payment authorization has expired. Please request a new payment.');
-  } else if (error.message.includes('Insufficient ETH')) {
-    // Handle facilitator gas shortage
-    console.log('Facilitator has insufficient ETH for gas. Please try again later.');
-  } else if (error.message.includes('Invalid signature')) {
-    // Handle signature verification failure
-    console.log('Payment signature is invalid. Please verify the payment data.');
-  } else {
-    // Handle other errors
-    console.log('Payment failed:', error.message);
-  }
+  console.log('Request failed:', error.message);
 }`
-
-const reactExample = `// React component example
-import React, { useState } from 'react';
-
-function PaymentProcessor({ facilitatorUrl }) {
-  const [paymentData, setPaymentData] = useState(null);
-  const [status, setStatus] = useState('idle');
-  const [result, setResult] = useState(null);
-
-  const processPayment = async () => {
-    if (!paymentData) return;
-
-    setStatus('processing');
-    try {
-      const receiver = new ReceiverService();
-      const result = await receiver.processPayment(facilitatorUrl, paymentData);
-      setResult(result);
-      setStatus('success');
-    } catch (error) {
-      setResult({ error: error.message });
-      setStatus('error');
-    }
-  };
-
-  return (
-    <div className="p-6 bg-white rounded-lg shadow">
-      <h2 className="text-xl font-semibold mb-4">Process Payment</h2>
-      
-      <textarea
-        value={paymentData ? JSON.stringify(paymentData, null, 2) : ''}
-        onChange={(e) => setPaymentData(JSON.parse(e.target.value))}
-        placeholder="Paste payment data here..."
-        className="w-full h-32 p-3 border rounded-md font-mono text-sm"
-      />
-      
-      <button
-        onClick={processPayment}
-        disabled={status === 'processing'}
-        className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md disabled:opacity-50"
-      >
-        {status === 'processing' ? 'Processing...' : 'Process Payment'}
-      </button>
-      
-      {result && (
-        <div className="mt-4 p-3 bg-gray-100 rounded-md">
-          <pre className="text-sm">{JSON.stringify(result, null, 2)}</pre>
-        </div>
-      )}
-    </div>
-  );
-}`
-
-const nodeExample = `// Node.js server example
-const express = require('express');
-const { ReceiverService } = require('./receiver-service');
-
-const app = express();
-app.use(express.json());
-
-const receiver = new ReceiverService();
-const FACILITATOR_URL = process.env.FACILITATOR_URL || 'http://localhost:3000';
-
-// Endpoint to receive payment data from payer
-app.post('/api/payments', async (req, res) => {
-  try {
-    const paymentData = req.body;
-    
-    // Process payment using facilitator
-    const result = await receiver.processPayment(FACILITATOR_URL, paymentData);
-    
-    res.json({ success: true, result });
-  } catch (error) {
-    res.status(400).json({ 
-      success: false, 
-      error: error.message 
-    });
-  }
-});
-
-// Health check endpoint
-app.get('/health', (req, res) => {
-  res.json({ status: 'healthy', timestamp: new Date().toISOString() });
-});
-
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-  console.log(\`Receiver server running on port \${PORT}\`);
-});`
 
 export default function ExamplesPage() {
   return (
@@ -295,17 +149,20 @@ export default function ExamplesPage() {
           Examples from simple to complex - choose the approach that fits your needs
         </p>
         
-        {/* Approach Overview */}
+        {/* Simple API Overview */}
         <div className="bg-gray-800 border border-gray-700 rounded-lg p-6">
-          <h2 className="text-lg font-semibold text-white mb-4">Choose Your Integration Approach</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+          <h2 className="text-lg font-semibold text-white mb-4">Simple API Integration</h2>
+          <p className="text-gray-300 text-sm mb-4">
+            The facilitator is just 2 HTTP endpoints. Choose your preferred language and make direct API calls.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
             <div className="flex items-start">
               <div className="w-6 h-6 bg-blue-500/20 rounded-full flex items-center justify-center mr-3 mt-0.5">
                 <span className="text-blue-400 font-bold text-xs">1</span>
               </div>
               <div>
-                <div className="font-medium text-white">Direct API</div>
-                <div className="text-gray-400">Simple HTTP calls, no dependencies</div>
+                <div className="font-medium text-white">JavaScript/TypeScript</div>
+                <div className="text-gray-400">fetch() API calls</div>
               </div>
             </div>
             <div className="flex items-start">
@@ -313,75 +170,54 @@ export default function ExamplesPage() {
                 <span className="text-green-400 font-bold text-xs">2</span>
               </div>
               <div>
-                <div className="font-medium text-white">Service Classes</div>
-                <div className="text-gray-400">Pre-built abstractions with error handling</div>
-              </div>
-            </div>
-            <div className="flex items-start">
-              <div className="w-6 h-6 bg-purple-500/20 rounded-full flex items-center justify-center mr-3 mt-0.5">
-                <span className="text-purple-400 font-bold text-xs">3</span>
-              </div>
-              <div>
-                <div className="font-medium text-white">Full Applications</div>
-                <div className="text-gray-400">Complete React/Node.js examples</div>
+                <div className="font-medium text-white">cURL/Command Line</div>
+                <div className="text-gray-400">Works with any language</div>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Direct API Usage */}
+      {/* JavaScript/TypeScript */}
       <div className="mb-16">
         <div className="flex items-center mb-6">
           <div className="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center mr-3">
             <span className="text-blue-400 font-bold text-sm">1</span>
           </div>
-          <h2 className="text-2xl font-bold text-white">Direct API Usage</h2>
+          <h2 className="text-2xl font-bold text-white">JavaScript/TypeScript</h2>
         </div>
         <p className="text-gray-300 mb-6">
-          The simplest approach - just make HTTP calls to the facilitator. Perfect for quick integration.
+          Simple fetch() calls to the facilitator API endpoints.
         </p>
-        <CodeBlock code={directApiExample} language="typescript" title="direct-api-usage.ts" />
+        <CodeBlock code={directApiExample} language="typescript" title="javascript-example.js" />
       </div>
 
-      {/* Payer Service */}
+      {/* cURL Examples */}
       <div className="mb-16">
         <div className="flex items-center mb-6">
           <div className="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center mr-3">
             <span className="text-green-400 font-bold text-sm">2</span>
           </div>
-          <h2 className="text-2xl font-bold text-white">Payer Service</h2>
+          <h2 className="text-2xl font-bold text-white">cURL Examples</h2>
         </div>
         <p className="text-gray-300 mb-6">
-          Service class for creating payment authorizations with EIP-712 signing.
+          Command-line examples that work with any programming language.
         </p>
-        <CodeBlock code={payerExample} language="typescript" title="payer-service.ts" />
+        <CodeBlock code={curlExample} language="bash" title="curl-examples.sh" />
       </div>
 
-      {/* Receiver Service */}
+      {/* Python Example */}
       <div className="mb-16">
         <div className="flex items-center mb-6">
           <div className="w-8 h-8 bg-purple-500/20 rounded-lg flex items-center justify-center mr-3">
             <span className="text-purple-400 font-bold text-sm">3</span>
           </div>
-          <h2 className="text-2xl font-bold text-white">Receiver Service</h2>
+          <h2 className="text-2xl font-bold text-white">Python Example</h2>
         </div>
         <p className="text-gray-300 mb-6">
-          Service class for processing payments with built-in error handling.
+          Python implementation using the requests library.
         </p>
-        <CodeBlock code={receiverExample} language="typescript" title="receiver-service.ts" />
-      </div>
-
-      {/* Complete Workflow */}
-      <div className="mb-16">
-        <div className="flex items-center mb-6">
-          <Play className="w-6 h-6 text-primary-400 mr-3" />
-          <h2 className="text-2xl font-bold text-white">Complete Workflow</h2>
-        </div>
-        <p className="text-gray-300 mb-6">
-          End-to-end example showing how payer and receiver work together.
-        </p>
-        <CodeBlock code={completeWorkflowExample} language="typescript" title="complete-workflow.ts" />
+        <CodeBlock code={pythonExample} language="python" title="python-example.py" />
       </div>
 
       {/* Error Handling */}
@@ -391,33 +227,9 @@ export default function ExamplesPage() {
           <h2 className="text-2xl font-bold text-white">Error Handling</h2>
         </div>
         <p className="text-gray-300 mb-6">
-          Comprehensive error handling for different failure scenarios.
+          Basic error handling for API calls.
         </p>
-        <CodeBlock code={errorHandlingExample} language="typescript" title="error-handling.ts" />
-      </div>
-
-      {/* React Component */}
-      <div className="mb-16">
-        <div className="flex items-center mb-6">
-          <Code className="w-6 h-6 text-primary-400 mr-3" />
-          <h2 className="text-2xl font-bold text-white">React Component</h2>
-        </div>
-        <p className="text-gray-300 mb-6">
-          React component for processing payments in a web application.
-        </p>
-        <CodeBlock code={reactExample} language="jsx" title="PaymentProcessor.jsx" />
-      </div>
-
-      {/* Node.js Server */}
-      <div className="mb-16">
-        <div className="flex items-center mb-6">
-          <Code className="w-6 h-6 text-primary-400 mr-3" />
-          <h2 className="text-2xl font-bold text-white">Node.js Server</h2>
-        </div>
-        <p className="text-gray-300 mb-6">
-          Express.js server example for receiving and processing payments.
-        </p>
-        <CodeBlock code={nodeExample} language="javascript" title="server.js" />
+        <CodeBlock code={errorHandlingExample} language="typescript" title="error-handling.js" />
       </div>
 
       {/* Integration Tips */}
@@ -425,21 +237,21 @@ export default function ExamplesPage() {
         <h2 className="text-2xl font-bold text-blue-200 mb-6">Integration Tips</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <h3 className="text-lg font-semibold text-blue-200 mb-3">For Payers</h3>
+            <h3 className="text-lg font-semibold text-blue-200 mb-3">API Usage</h3>
             <ul className="text-blue-300 space-y-2 text-sm">
-              <li>• Always set appropriate validity periods</li>
-              <li>• Use unique nonces for each payment</li>
-              <li>• Implement proper error handling</li>
-              <li>• Store payment data securely</li>
+              <li>• Always verify payments before settling</li>
+              <li>• Handle HTTP errors gracefully</li>
+              <li>• Check response status codes</li>
+              <li>• Implement retry logic for network issues</li>
             </ul>
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-blue-200 mb-3">For Receivers</h3>
+            <h3 className="text-lg font-semibold text-blue-200 mb-3">Best Practices</h3>
             <ul className="text-blue-300 space-y-2 text-sm">
-              <li>• Always verify payments before settling</li>
-              <li>• Implement retry mechanisms</li>
-              <li>• Monitor facilitator health</li>
-              <li>• Handle rate limiting gracefully</li>
+              <li>• Use HTTPS in production</li>
+              <li>• Set appropriate timeouts</li>
+              <li>• Log API responses for debugging</li>
+              <li>• Monitor facilitator health endpoint</li>
             </ul>
           </div>
         </div>

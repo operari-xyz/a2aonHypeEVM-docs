@@ -3,6 +3,7 @@ import Link from 'next/link'
 import CodeBlock from '@/components/CodeBlock'
 import FeatureCard from '@/components/FeatureCard'
 import APICard from '@/components/APICard'
+import { FACILITATOR_URL } from '@/lib/config'
 
 const features = [
   {
@@ -65,7 +66,7 @@ const apiEndpoints = [
 const quickStartCode = `// Simple API Usage - Direct HTTP calls to facilitator
 
 // Step 1: Verify payment (optional but recommended)
-const verifyResponse = await fetch('http://localhost:3000/facilitator/verify', {
+const verifyResponse = await fetch('${FACILITATOR_URL}/facilitator/verify', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
@@ -85,7 +86,7 @@ const verification = await verifyResponse.json();
 
 // Step 2: Settle payment (facilitator pays gas)
 if (verification.isValid) {
-  const settleResponse = await fetch('http://localhost:3000/facilitator/settle', {
+  const settleResponse = await fetch('${FACILITATOR_URL}/facilitator/settle', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -210,50 +211,47 @@ export default function HomePage() {
       <div className="section-padding">
         <div className="animate-fade-in-up">
           <h2 className="text-4xl md:text-5xl font-bold text-white text-center mb-16">
-            How to Integrate
+            Simple Integration
           </h2>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div className="card">
-              <div className="flex items-center mb-4">
-                <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center mr-4">
-                  <Code className="w-6 h-6 text-blue-400" />
+          <div className="max-w-4xl mx-auto">
+            <div className="card text-center">
+              <div className="flex items-center justify-center mb-6">
+                <div className="w-16 h-16 bg-blue-500/20 rounded-2xl flex items-center justify-center mr-4">
+                  <Code className="w-8 h-8 text-blue-400" />
                 </div>
-                <h3 className="text-xl font-bold text-white">Direct API Calls</h3>
+                <h3 className="text-2xl font-bold text-white">Just 2 API Endpoints</h3>
               </div>
-              <p className="text-gray-300 mb-4">
-                Make simple HTTP requests to the facilitator endpoints. Perfect for quick integration or when you want full control.
+              <p className="text-gray-300 mb-8 text-lg">
+                The facilitator is a simple API service. Make HTTP calls to verify and settle payments.
               </p>
-              <ul className="text-sm text-gray-400 space-y-2">
-                <li>• Just 2 endpoints: <code>/verify</code> and <code>/settle</code></li>
-                <li>• No additional dependencies</li>
-                <li>• Works with any programming language</li>
-                <li>• See the Quick Start example above</li>
-              </ul>
-            </div>
-            
-            <div className="card">
-              <div className="flex items-center mb-4">
-                <div className="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center mr-4">
-                  <Users className="w-6 h-6 text-green-400" />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
+                <div className="bg-gray-800/50 rounded-lg p-4">
+                  <div className="flex items-center mb-3">
+                    <div className="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center mr-3">
+                      <span className="text-green-400 font-bold text-sm">1</span>
+                    </div>
+                    <h4 className="font-semibold text-white">Verify Payment</h4>
+                  </div>
+                  <p className="text-gray-400 text-sm">Check if payment is valid before settling</p>
+                  <code className="text-blue-400 text-xs">POST /facilitator/verify</code>
                 </div>
-                <h3 className="text-xl font-bold text-white">Service Abstractions</h3>
+                <div className="bg-gray-800/50 rounded-lg p-4">
+                  <div className="flex items-center mb-3">
+                    <div className="w-8 h-8 bg-purple-500/20 rounded-lg flex items-center justify-center mr-3">
+                      <span className="text-purple-400 font-bold text-sm">2</span>
+                    </div>
+                    <h4 className="font-semibold text-white">Settle Payment</h4>
+                  </div>
+                  <p className="text-gray-400 text-sm">Execute the payment (facilitator pays gas)</p>
+                  <code className="text-blue-400 text-xs">POST /facilitator/settle</code>
+                </div>
               </div>
-              <p className="text-gray-300 mb-4">
-                Use pre-built service classes for more complex applications. Handles EIP-712 signing and error management.
-              </p>
-              <ul className="text-sm text-gray-400 space-y-2">
-                <li>• <code>PayerService</code> - Creates payment authorizations</li>
-                <li>• <code>ReceiverService</code> - Processes payments</li>
-                <li>• Built-in error handling and retries</li>
-                <li>• See the Examples page for full implementations</li>
-              </ul>
+              <div className="mt-8">
+                <p className="text-gray-400 text-sm">
+                  <strong>Works with any language:</strong> JavaScript, Python, cURL, or any HTTP client
+                </p>
+              </div>
             </div>
-          </div>
-          
-          <div className="mt-8 text-center">
-            <p className="text-gray-400 text-sm">
-              <strong>Choose your approach:</strong> Direct API calls for simplicity, or service abstractions for complex applications.
-            </p>
           </div>
         </div>
       </div>

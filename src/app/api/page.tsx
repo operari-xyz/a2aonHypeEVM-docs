@@ -3,6 +3,7 @@
 import { CheckCircle, AlertCircle, Clock, Zap, Shield } from 'lucide-react'
 import CodeBlock from '@/components/CodeBlock'
 import APICard from '@/components/APICard'
+import { FACILITATOR_URL } from '@/lib/config'
 
 const endpoints = [
   {
@@ -128,7 +129,7 @@ export default function APIPage() {
       {/* Base URL */}
       <div className="bg-blue-900 border border-blue-700 rounded-lg p-6 mb-12">
         <h2 className="text-lg font-semibold text-blue-200 mb-2">Base URL</h2>
-        <code className="text-blue-300 font-mono">http://localhost:3000/facilitator</code>
+        <code className="text-blue-300 font-mono">{FACILITATOR_URL}/facilitator</code>
         <p className="text-blue-300 text-sm mt-2">
           All API endpoints are prefixed with <code className="bg-blue-800 px-1 rounded">/facilitator</code>
         </p>
@@ -346,7 +347,7 @@ export default function APIPage() {
           <div>
             <h3 className="text-lg font-semibold text-white mb-3">Verify Payment</h3>
             <CodeBlock 
-              code={`curl -X POST http://localhost:3000/facilitator/verify \\
+              code={`curl -X POST ${FACILITATOR_URL}/facilitator/verify \\
   -H "Content-Type: application/json" \\
   -d '{
     "signature": "0x...",
@@ -366,7 +367,7 @@ export default function APIPage() {
           <div>
             <h3 className="text-lg font-semibold text-white mb-3">Settle Payment</h3>
             <CodeBlock 
-              code={`curl -X POST http://localhost:3000/facilitator/settle \\
+              code={`curl -X POST ${FACILITATOR_URL}/facilitator/settle \\
   -H "Content-Type: application/json" \\
   -d '{
     "payment": {
@@ -388,7 +389,7 @@ export default function APIPage() {
           <div>
             <h3 className="text-lg font-semibold text-white mb-3">Health Check</h3>
             <CodeBlock 
-              code="curl http://localhost:3000/facilitator/health" 
+              code={`curl ${FACILITATOR_URL}/facilitator/health`} 
               language="bash" 
             />
           </div>
