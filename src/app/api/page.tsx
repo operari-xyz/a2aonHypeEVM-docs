@@ -157,6 +157,27 @@ export default function APIPage() {
         </p>
       </div>
 
+      {/* Quick Usage */}
+      <div className="bg-blue-900 border border-blue-700 rounded-lg p-6 mb-12">
+        <div className="flex items-center mb-4">
+          <Zap className="w-5 h-5 text-blue-400 mr-2" />
+          <h2 className="text-lg font-semibold text-blue-200">Quick Usage</h2>
+        </div>
+        <p className="text-blue-300 text-sm mb-4">
+          The facilitator is just 2 simple API endpoints. Here's how to use them:
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+          <div>
+            <div className="font-medium text-blue-200 mb-2">1. Verify Payment (Optional)</div>
+            <div className="text-blue-300">Check if payment is valid before settling</div>
+          </div>
+          <div>
+            <div className="font-medium text-blue-200 mb-2">2. Settle Payment</div>
+            <div className="text-blue-300">Execute the payment (facilitator pays gas)</div>
+          </div>
+        </div>
+      </div>
+
       {/* Endpoints Overview */}
       <div className="mb-12">
         <h2 className="text-2xl font-bold text-white mb-6">Endpoints Overview</h2>

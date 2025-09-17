@@ -62,29 +62,41 @@ const apiEndpoints = [
   },
 ]
 
-const quickStartCode = `// Step 1: Payer creates payment
-const payer = new PayerService('payer_private_key');
-const paymentData = await payer.createPaymentData(
-  '0xReceiverAddress',
-  '10.0' // 10 USDT0
-);
+const quickStartCode = `// Simple API Usage - Direct HTTP calls to facilitator
 
-// Step 2: Receiver processes payment (no private key needed!)
-const receiver = new ReceiverService();
+// Step 1: Verify payment (optional but recommended)
+const verifyResponse = await fetch('http://localhost:3000/facilitator/verify', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    signature: "0x...", // EIP-712 signature from payer
+    authorization: {
+      from: "0xPayerAddress",
+      to: "0xReceiverAddress", 
+      value: "10000000", // 10 USDT0 (6 decimals)
+      validAfter: "1757710504",
+      validBefore: "1757714704",
+      nonce: "0x..."
+    }
+  })
+});
 
-// Verify payment (optional)
-const verification = await receiver.verifyPaymentWithFacilitator(
-  'http://localhost:3000',
-  paymentData
-);
+const verification = await verifyResponse.json();
 
+// Step 2: Settle payment (facilitator pays gas)
 if (verification.isValid) {
-  // Settle payment (facilitator pays gas)
-  const settlement = await receiver.settlePaymentWithFacilitator(
-    'http://localhost:3000',
-    paymentData
-  );
+  const settleResponse = await fetch('http://localhost:3000/facilitator/settle', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      payment: {
+        signature: "0x...",
+        authorization: { /* same as above */ }
+      }
+    })
+  });
   
+  const settlement = await settleResponse.json();
   console.log('Payment completed!', settlement.transaction);
 }`
 
@@ -190,6 +202,58 @@ export default function HomePage() {
           </h2>
           <div className="card">
             <CodeBlock code={quickStartCode} language="typescript" />
+          </div>
+        </div>
+      </div>
+
+      {/* Integration Guide */}
+      <div className="section-padding">
+        <div className="animate-fade-in-up">
+          <h2 className="text-4xl md:text-5xl font-bold text-white text-center mb-16">
+            How to Integrate
+          </h2>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="card">
+              <div className="flex items-center mb-4">
+                <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center mr-4">
+                  <Code className="w-6 h-6 text-blue-400" />
+                </div>
+                <h3 className="text-xl font-bold text-white">Direct API Calls</h3>
+              </div>
+              <p className="text-gray-300 mb-4">
+                Make simple HTTP requests to the facilitator endpoints. Perfect for quick integration or when you want full control.
+              </p>
+              <ul className="text-sm text-gray-400 space-y-2">
+                <li>• Just 2 endpoints: <code>/verify</code> and <code>/settle</code></li>
+                <li>• No additional dependencies</li>
+                <li>• Works with any programming language</li>
+                <li>• See the Quick Start example above</li>
+              </ul>
+            </div>
+            
+            <div className="card">
+              <div className="flex items-center mb-4">
+                <div className="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center mr-4">
+                  <Users className="w-6 h-6 text-green-400" />
+                </div>
+                <h3 className="text-xl font-bold text-white">Service Abstractions</h3>
+              </div>
+              <p className="text-gray-300 mb-4">
+                Use pre-built service classes for more complex applications. Handles EIP-712 signing and error management.
+              </p>
+              <ul className="text-sm text-gray-400 space-y-2">
+                <li>• <code>PayerService</code> - Creates payment authorizations</li>
+                <li>• <code>ReceiverService</code> - Processes payments</li>
+                <li>• Built-in error handling and retries</li>
+                <li>• See the Examples page for full implementations</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div className="mt-8 text-center">
+            <p className="text-gray-400 text-sm">
+              <strong>Choose your approach:</strong> Direct API calls for simplicity, or service abstractions for complex applications.
+            </p>
           </div>
         </div>
       </div>

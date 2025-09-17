@@ -1,11 +1,51 @@
 import { Code, Play, Copy, CheckCircle } from 'lucide-react'
 import CodeBlock from '@/components/CodeBlock'
 
-const payerExample = `import { ethers } from 'ethers';
+const directApiExample = `// 1. Direct API Usage - Simplest approach
+// Just make HTTP calls to the facilitator
+
+// Verify payment
+const verifyResponse = await fetch('http://localhost:3000/facilitator/verify', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    signature: "0x...", // EIP-712 signature from payer
+    authorization: {
+      from: "0xPayerAddress",
+      to: "0xReceiverAddress",
+      value: "10000000", // 10 USDT0 (6 decimals)
+      validAfter: "1757710504",
+      validBefore: "1757714704", 
+      nonce: "0x..."
+    }
+  })
+});
+
+const verification = await verifyResponse.json();
+
+// Settle payment if valid
+if (verification.isValid) {
+  const settleResponse = await fetch('http://localhost:3000/facilitator/settle', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      payment: {
+        signature: "0x...",
+        authorization: { /* same as above */ }
+      }
+    })
+  });
+  
+  const settlement = await settleResponse.json();
+  console.log('Payment completed!', settlement.transaction);
+}`
+
+const payerExample = `// 2. Payer Service - For creating payment authorizations
+import { ethers } from 'ethers';
 
 const EIP712_DOMAIN = {
   name: "USD₮0",
-  version: "1",
+  version: "1", 
   chainId: 999,
   verifyingContract: "0xB8CE59FC3717ada4C02eaDF9682A9e934F625ebb"
 };
@@ -48,19 +88,10 @@ class PayerService {
 
     return { signature, authorization };
   }
-
-  async sendPaymentToReceiver(receiverUrl: string, paymentData: any) {
-    const response = await fetch(receiverUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(paymentData)
-    });
-    
-    return response.json();
-  }
 }`
 
-const receiverExample = `class ReceiverService {
+const receiverExample = `// 3. Receiver Service - For processing payments
+class ReceiverService {
   async verifyPaymentWithFacilitator(facilitatorUrl: string, paymentData: any) {
     const response = await fetch(\`\${facilitatorUrl}/facilitator/verify\`, {
       method: 'POST',
@@ -260,31 +291,83 @@ export default function ExamplesPage() {
         <h1 className="text-4xl font-bold text-white mb-4">
           Code Examples
         </h1>
-        <p className="text-xl text-gray-300">
-          Practical examples and implementations for integrating with the USDT0 Facilitator
+        <p className="text-xl text-gray-300 mb-6">
+          Examples from simple to complex - choose the approach that fits your needs
         </p>
+        
+        {/* Approach Overview */}
+        <div className="bg-gray-800 border border-gray-700 rounded-lg p-6">
+          <h2 className="text-lg font-semibold text-white mb-4">Choose Your Integration Approach</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+            <div className="flex items-start">
+              <div className="w-6 h-6 bg-blue-500/20 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                <span className="text-blue-400 font-bold text-xs">1</span>
+              </div>
+              <div>
+                <div className="font-medium text-white">Direct API</div>
+                <div className="text-gray-400">Simple HTTP calls, no dependencies</div>
+              </div>
+            </div>
+            <div className="flex items-start">
+              <div className="w-6 h-6 bg-green-500/20 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                <span className="text-green-400 font-bold text-xs">2</span>
+              </div>
+              <div>
+                <div className="font-medium text-white">Service Classes</div>
+                <div className="text-gray-400">Pre-built abstractions with error handling</div>
+              </div>
+            </div>
+            <div className="flex items-start">
+              <div className="w-6 h-6 bg-purple-500/20 rounded-full flex items-center justify-center mr-3 mt-0.5">
+                <span className="text-purple-400 font-bold text-xs">3</span>
+              </div>
+              <div>
+                <div className="font-medium text-white">Full Applications</div>
+                <div className="text-gray-400">Complete React/Node.js examples</div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Payer Implementation */}
+      {/* Direct API Usage */}
       <div className="mb-16">
         <div className="flex items-center mb-6">
-          <Code className="w-6 h-6 text-primary-400 mr-3" />
-          <h2 className="text-2xl font-bold text-white">Payer Implementation</h2>
+          <div className="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center mr-3">
+            <span className="text-blue-400 font-bold text-sm">1</span>
+          </div>
+          <h2 className="text-2xl font-bold text-white">Direct API Usage</h2>
         </div>
         <p className="text-gray-300 mb-6">
-          Complete TypeScript implementation for payers to create and send payment authorizations.
+          The simplest approach - just make HTTP calls to the facilitator. Perfect for quick integration.
+        </p>
+        <CodeBlock code={directApiExample} language="typescript" title="direct-api-usage.ts" />
+      </div>
+
+      {/* Payer Service */}
+      <div className="mb-16">
+        <div className="flex items-center mb-6">
+          <div className="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center mr-3">
+            <span className="text-green-400 font-bold text-sm">2</span>
+          </div>
+          <h2 className="text-2xl font-bold text-white">Payer Service</h2>
+        </div>
+        <p className="text-gray-300 mb-6">
+          Service class for creating payment authorizations with EIP-712 signing.
         </p>
         <CodeBlock code={payerExample} language="typescript" title="payer-service.ts" />
       </div>
 
-      {/* Receiver Implementation */}
+      {/* Receiver Service */}
       <div className="mb-16">
         <div className="flex items-center mb-6">
-          <Code className="w-6 h-6 text-primary-400 mr-3" />
-          <h2 className="text-2xl font-bold text-white">Receiver Implementation</h2>
+          <div className="w-8 h-8 bg-purple-500/20 rounded-lg flex items-center justify-center mr-3">
+            <span className="text-purple-400 font-bold text-sm">3</span>
+          </div>
+          <h2 className="text-2xl font-bold text-white">Receiver Service</h2>
         </div>
         <p className="text-gray-300 mb-6">
-          Complete TypeScript implementation for receivers to process payments without private keys.
+          Service class for processing payments with built-in error handling.
         </p>
         <CodeBlock code={receiverExample} language="typescript" title="receiver-service.ts" />
       </div>
@@ -364,3 +447,4 @@ export default function ExamplesPage() {
     </div>
   )
 }
+
