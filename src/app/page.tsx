@@ -13,7 +13,7 @@ const features = [
   {
     icon: Zap,
     title: 'No ETH Required',
-    description: 'Receivers don&apos;t need ETH for gas - facilitator pays all transaction costs',
+    description: 'Receivers deposit need ETH for gas - facilitator pays all transaction costs',
   },
   {
     icon: Users,
