@@ -16,7 +16,7 @@ const endpoints = [
     method: 'POST',
     path: '/facilitator/settle',
     title: 'Settle Payment',
-    description: 'Execute a payment authorization using facilitator\'s wallet',
+    description: 'Execute a payment authorization using facilitator&apos;s wallet',
     color: 'green' as const,
   },
   {
@@ -30,7 +30,7 @@ const endpoints = [
     method: 'GET',
     path: '/facilitator/gas-estimate',
     title: 'Gas Estimate',
-    description: 'Get facilitator\'s gas balance and cost estimate',
+    description: 'Get facilitator&apos;s gas balance and cost estimate',
     color: 'yellow' as const,
   },
   {
@@ -154,7 +154,7 @@ export default function APIPage() {
         </div>
         <p className="text-green-300 text-sm">
           No authentication required - the facilitator is designed for public use.
-        </p>
+      </p>
       </div>
 
       {/* Quick Usage */}
@@ -164,7 +164,7 @@ export default function APIPage() {
           <h2 className="text-lg font-semibold text-blue-200">Quick Usage</h2>
         </div>
         <p className="text-blue-300 text-sm mb-4">
-          The facilitator is just 2 simple API endpoints. Here's how to use them:
+          The facilitator is just 2 simple API endpoints. Here&apos;s how to use them:
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
           <div>
@@ -245,7 +245,7 @@ export default function APIPage() {
           
           <h3 className="text-xl font-semibold text-white mb-4">Settle Payment</h3>
           <p className="text-gray-300 mb-6">
-            Execute a payment authorization using facilitator's wallet. The facilitator will pay 
+            Execute a payment authorization using facilitator&apos;s wallet. The facilitator will pay 
             all gas fees and execute the USDT0 transfer.
           </p>
 
@@ -308,7 +308,7 @@ export default function APIPage() {
           
           <h3 className="text-xl font-semibold text-white mb-4">Gas Estimate</h3>
           <p className="text-gray-300 mb-6">
-            Get facilitator's gas balance and cost estimate for transactions.
+            Get facilitator&apos;s gas balance and cost estimate for transactions.
           </p>
 
           <div>

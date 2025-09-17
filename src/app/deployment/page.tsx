@@ -440,7 +440,7 @@ export default function DeploymentPage() {
           <div className="bg-yellow-900 border border-yellow-700 rounded-lg p-6">
             <h3 className="text-lg font-semibold text-yellow-200 mb-2">Common Issues</h3>
             <div className="space-y-2 text-yellow-300 text-sm">
-              <div><strong>Container won't start:</strong> Check environment variables and port conflicts</div>
+              <div><strong>Container won&apos;t start:</strong> Check environment variables and port conflicts</div>
               <div><strong>Health check failing:</strong> Verify facilitator ETH balance and RPC connectivity</div>
               <div><strong>Rate limiting issues:</strong> Check nginx configuration and rate limit settings</div>
               <div><strong>SSL certificate errors:</strong> Verify certificate validity and nginx configuration</div>

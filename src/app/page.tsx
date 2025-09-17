@@ -13,7 +13,7 @@ const features = [
   {
     icon: Zap,
     title: 'No ETH Required',
-    description: 'Receivers don\'t need ETH for gas - facilitator pays all transaction costs',
+    description: 'Receivers don&apos;t need ETH for gas - facilitator pays all transaction costs',
   },
   {
     icon: Users,
@@ -40,7 +40,7 @@ const apiEndpoints = [
     method: 'POST',
     path: '/facilitator/settle',
     title: 'Settle Payment',
-    description: 'Execute a payment authorization using facilitator\'s wallet',
+    description: 'Execute a payment authorization using facilitator&apos;s wallet',
     color: 'green' as const,
     href: '/api#facilitator-settle',
   },
@@ -56,7 +56,7 @@ const apiEndpoints = [
     method: 'GET',
     path: '/facilitator/gas-estimate',
     title: 'Gas Estimate',
-    description: 'Get facilitator\'s gas balance and cost estimate',
+    description: 'Get facilitator&apos;s gas balance and cost estimate',
     color: 'yellow' as const,
     href: '/api#facilitator-gas-estimate',
   },
