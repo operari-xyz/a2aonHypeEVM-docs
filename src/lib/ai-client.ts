@@ -60,19 +60,40 @@ export class AIAPIClient {
 
   async callAI(prompt: string, payment?: PaymentObject): Promise<APIResponse> {
     try {
+      // Create headers object
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      
+      // Add X-Payment header if payment exists
+      if (payment) {
+        // Create x402 format payment object as per guide
+        const x402Payment = {
+          x402Version: 1,
+          scheme: "exact",
+          network: "base",
+          payload: payment
+        };
+        
+        // Base64 encode the payment object
+        const encodedPayment = btoa(JSON.stringify(x402Payment));
+        headers['X-Payment'] = encodedPayment;
+      }
+      
+      // Request body only contains prompt
       const requestBody = {
-        prompt,
-        payment
+        prompt
       };
       
       console.log('🚀 Sending AI request to:', API_ENDPOINTS.AI);
       console.log('📤 Request body:', JSON.stringify(requestBody, null, 2));
+      if (payment) {
+        console.log('📤 X-Payment header included (base64 encoded)');
+      }
       
       const response = await fetch(API_ENDPOINTS.AI, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify(requestBody)
       });
 
