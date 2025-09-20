@@ -108,10 +108,10 @@ export class AIAPIClient {
       // Handle different error types
       switch (response.error) {
         case 'Payment required':
-          return { type: 'payment_required', message: response.message };
+          return { type: 'payment_required', message: (response as PaymentRequiredResponse).message };
         case 'Invalid payment signature':
         case 'Invalid payment format':
-          return { type: 'invalid_payment', message: response.message };
+          return { type: 'invalid_payment', message: (response as InvalidPaymentResponse).message };
         default:
           return { type: 'error', message: response.error };
       }
