@@ -3,12 +3,13 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Menu, X, Zap, BookOpen, Code, Shield, Settings } from 'lucide-react'
+import { Menu, X, Zap, BookOpen, Code, Shield, Settings, Play } from 'lucide-react'
 
 const navigation = [
   { name: 'Overview', href: '/', icon: BookOpen },
   { name: 'API Reference', href: '/api', icon: Code },
   { name: 'Examples', href: '/examples', icon: Code },
+  { name: 'Try Out', href: '/try-out', icon: Play },
   // { name: 'Security', href: '/security', icon: Shield },
   // { name: 'Deployment', href: '/deployment', icon: Settings },
 ]
