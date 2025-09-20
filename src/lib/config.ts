@@ -1,6 +1,6 @@
 // Facilitator API Configuration
-export const FACILITATOR_URL = process.env.NEXT_PUBLIC_FACILITATOR_URL || 'http://localhost:5050'
-// export const FACILITATOR_URL = process.env.NEXT_PUBLIC_FACILITATOR_URL || 'https://a2aonhypeevm.onrender.com'
+// export const FACILITATOR_URL = process.env.NEXT_PUBLIC_FACILITATOR_URL || 'http://localhost:5050'
+export const FACILITATOR_URL = process.env.NEXT_PUBLIC_FACILITATOR_URL || 'https://a2aonhypeevm.onrender.com'
 
 // API Endpoints
 export const API_ENDPOINTS = {
