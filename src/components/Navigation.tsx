@@ -19,15 +19,15 @@ export default function Navigation() {
   const pathname = usePathname()
 
   return (
-    <nav className="bg-dark-900/80 backdrop-blur-md border-b border-gray-700/50 fixed w-full top-0 z-50">
+    <nav className="backdrop-blur-2xl border-b border-gray-700/50 fixed w-full top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
             <Link href="/" className="flex items-center space-x-3 group">
-              <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex-shrink-0 shadow-lg group-hover:shadow-purple-500/25 transition-all duration-200 group-hover:scale-105">
+              <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-gray-600 to-gray-700 rounded-xl flex-shrink-0 shadow-lg group-hover:shadow-gray-500/25 transition-all duration-200 group-hover:scale-105">
                 <Zap className="w-6 h-6 text-white" />
               </div>
-              <span className="text-xl font-bold text-white whitespace-nowrap group-hover:text-purple-400 transition-colors duration-200">
+              <span className="text-xl font-bold text-white whitespace-nowrap group-hover:text-gray-300 transition-colors duration-200">
                 USDT0 Facilitator
               </span>
             </Link>

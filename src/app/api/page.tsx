@@ -127,12 +127,12 @@ export default function APIPage() {
       </div>
 
       {/* Base URL */}
-      <div className="bg-blue-900 border border-blue-700 rounded-lg p-6 mb-12">
-        <h2 className="text-lg font-semibold text-blue-200 mb-2">Base URL</h2>
-        <code className="text-blue-300 font-mono">{FACILITATOR_URL}/facilitator</code>
-        <p className="text-blue-300 text-sm mt-2">
-          All API endpoints are prefixed with <code className="bg-blue-800 px-1 rounded">/facilitator</code>
+      <div className="bg-gray-800 border border-gray-600 rounded-lg p-6 mb-12">
+        <h2 className="text-2xl font-bold text-white mb-4">Base URL</h2>
+        <p className="text-gray-300 mb-4">
+          All API endpoints are prefixed with <code className="bg-gray-700 px-1 rounded">/facilitator</code>
         </p>
+        <code className="text-gray-300 font-mono">{FACILITATOR_URL}/facilitator</code>
       </div>
 
       {/* Rate Limiting */}
@@ -159,22 +159,22 @@ export default function APIPage() {
       </div>
 
       {/* Quick Usage */}
-      <div className="bg-blue-900 border border-blue-700 rounded-lg p-6 mb-12">
+      <div className="bg-gray-800 border border-gray-600 rounded-lg p-6 mb-12">
         <div className="flex items-center mb-4">
-          <Zap className="w-5 h-5 text-blue-400 mr-2" />
-          <h2 className="text-lg font-semibold text-blue-200">Quick Usage</h2>
+          <Zap className="w-5 h-5 text-gray-400 mr-2" />
+          <h2 className="text-lg font-semibold text-gray-200">Quick Usage</h2>
         </div>
-        <p className="text-blue-300 text-sm mb-4">
+        <p className="text-gray-300 text-sm mb-4">
           The facilitator is just 2 simple API endpoints. Here&apos;s how to use them:
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
           <div>
-            <div className="font-medium text-blue-200 mb-2">1. Verify Payment (Optional)</div>
-            <div className="text-blue-300">Check if payment is valid before settling</div>
+            <div className="font-medium text-gray-200 mb-2">1. Verify Payment (Optional)</div>
+            <div className="text-gray-300">Check if payment is valid before settling</div>
           </div>
           <div>
-            <div className="font-medium text-blue-200 mb-2">2. Settle Payment</div>
-            <div className="text-blue-300">Execute the payment (facilitator pays gas)</div>
+            <div className="font-medium text-gray-200 mb-2">2. Settle Payment</div>
+            <div className="text-gray-300">Execute the payment (facilitator pays gas)</div>
           </div>
         </div>
       </div>
@@ -198,7 +198,7 @@ export default function APIPage() {
         {/* Verify Endpoint */}
         <div id="facilitator-verify" className="api-endpoint">
           <div className="flex items-center mb-6">
-            <span className="bg-blue-900 text-blue-300 px-3 py-1 rounded text-sm font-medium mr-4">
+            <span className="bg-gray-700 text-gray-300 px-3 py-1 rounded text-sm font-medium mr-4">
               POST
             </span>
             <code className="text-lg font-mono text-white">/facilitator/verify</code>
@@ -321,7 +321,7 @@ export default function APIPage() {
         {/* Facilitator Info Endpoint */}
         <div id="facilitator-facilitator-info" className="api-endpoint">
           <div className="flex items-center mb-6">
-            <span className="bg-purple-900 text-purple-300 px-3 py-1 rounded text-sm font-medium mr-4">
+            <span className="bg-gray-700 text-gray-300 px-3 py-1 rounded text-sm font-medium mr-4">
               GET
             </span>
             <code className="text-lg font-mono text-white">/facilitator/facilitator-info</code>

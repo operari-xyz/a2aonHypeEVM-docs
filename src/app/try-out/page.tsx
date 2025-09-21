@@ -515,13 +515,13 @@ export default function TryOutPage() {
   };
 
   return (
-    <div className="min-h-screen bg-dark-950 overflow-x-hidden">
+    <div className="min-h-screen overflow-x-hidden">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex flex-col sm:flex-row items-center justify-center mb-4">
             <div className="flex items-center space-x-3 mb-4 sm:mb-0">
-              <div className="flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-green-500 to-emerald-500 rounded-2xl shadow-lg">
+              <div className="flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-gray-600 to-gray-700 rounded-2xl shadow-lg">
                 <Bot className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
               </div>
               <div className="text-center sm:text-left">
@@ -533,7 +533,7 @@ export default function TryOutPage() {
                     Powered by
                   </span>
                   <div className="flex items-center space-x-1 bg-gray-800 px-2 py-1 rounded-lg">
-                    <div className="w-3 h-3 sm:w-4 sm:h-4 bg-green-500 rounded-sm flex items-center justify-center">
+                    <div className="w-3 h-3 sm:w-4 sm:h-4 bg-gray-600 rounded-sm flex items-center justify-center">
                       <span className="text-white text-xs font-bold">AI</span>
                     </div>
                     <span className="text-white font-semibold text-sm sm:text-base">
@@ -550,8 +550,8 @@ export default function TryOutPage() {
 
           <div className="bg-dark-800/50 border border-gray-700/50 rounded-xl p-4 sm:p-6 max-w-2xl mx-auto">
             <div className="flex items-center justify-center space-x-2 mb-3">
-              <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400" />
-              <span className="text-yellow-400 font-semibold text-sm sm:text-base">
+              <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
+              <span className="text-gray-400 font-semibold text-sm sm:text-base">
                 Real-time AI Processing
               </span>
             </div>
@@ -566,7 +566,7 @@ export default function TryOutPage() {
         <div className="bg-dark-800/50 border border-gray-700/50 rounded-xl p-4 sm:p-6 mb-6 sm:mb-8">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-4 sm:space-y-0">
             <div className="flex items-center space-x-3">
-              <Wallet className="w-5 h-5 sm:w-6 sm:h-6 text-blue-400" />
+              <Wallet className="w-5 h-5 sm:w-6 sm:h-6 text-gray-400" />
               <div>
                 <h3 className="text-base sm:text-lg font-semibold text-white">
                   Wallet Connection
@@ -588,7 +588,7 @@ export default function TryOutPage() {
               <button
                 onClick={connectWallet}
                 disabled={!mounted || !isRabbyAvailable || walletConnecting}
-                className="w-full sm:w-auto px-4 sm:px-6 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors flex items-center justify-center space-x-2"
+                className="w-full sm:w-auto px-4 sm:px-6 py-2 bg-gray-600 hover:bg-gray-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors flex items-center justify-center space-x-2"
               >
                 {walletConnecting ? (
                   <>
@@ -657,12 +657,12 @@ export default function TryOutPage() {
                   onClick={() => setProvider("openai")}
                   className={`flex items-center justify-center space-x-2 px-4 py-3 rounded-lg border transition-all duration-200 ${
                     provider === "openai"
-                      ? "bg-blue-600 border-blue-500 text-white"
+                      ? "bg-gray-600 border-gray-500 text-white"
                       : "bg-dark-700/50 border-gray-600 text-gray-300 hover:border-gray-500"
                   }`}
                   disabled={loading || signing}
                 >
-                  <div className="w-4 h-4 bg-green-500 rounded-sm flex items-center justify-center">
+                  <div className="w-4 h-4 bg-gray-600 rounded-sm flex items-center justify-center">
                     <span className="text-white text-xs font-bold">AI</span>
                   </div>
                   <span className="font-medium">OpenAI</span>
@@ -672,12 +672,12 @@ export default function TryOutPage() {
                   onClick={() => setProvider("claude")}
                   className={`flex items-center justify-center space-x-2 px-4 py-3 rounded-lg border transition-all duration-200 ${
                     provider === "claude"
-                      ? "bg-purple-600 border-purple-500 text-white"
+                      ? "bg-gray-700 border-gray-600 text-white"
                       : "bg-dark-700/50 border-gray-600 text-gray-300 hover:border-gray-500"
                   }`}
                   disabled={loading || signing}
                 >
-                  <div className="w-4 h-4 bg-purple-500 rounded-sm flex items-center justify-center">
+                  <div className="w-4 h-4 bg-gray-500 rounded-sm flex items-center justify-center">
                     <span className="text-white text-xs font-bold">C</span>
                   </div>
                   <span className="font-medium">Claude</span>
@@ -720,7 +720,7 @@ export default function TryOutPage() {
               <button
                 type="submit"
                 disabled={loading || signing || !prompt.trim()}
-                className="w-full sm:w-auto px-4 sm:px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:from-gray-600 disabled:to-gray-600 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-all duration-200 flex items-center justify-center space-x-2 text-sm sm:text-base"
+                className="w-full sm:w-auto px-4 sm:px-6 py-2 bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 disabled:from-gray-600 disabled:to-gray-600 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-all duration-200 flex items-center justify-center space-x-2 text-sm sm:text-base"
               >
                 {signing ? (
                   <>
@@ -745,7 +745,7 @@ export default function TryOutPage() {
           {/* Test Prompts */}
           <div className="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-gray-700/50">
             <div className="flex items-center space-x-2 mb-3">
-              <Zap className="w-4 h-4 text-yellow-400" />
+              <Zap className="w-4 h-4 text-gray-400" />
               <h4 className="text-sm font-medium text-gray-300">
                 Quick Test Prompts
               </h4>
@@ -818,13 +818,13 @@ export default function TryOutPage() {
                     {(response.transactionHash || response.paymentStatus.transactionHash) && (
                       <div className="mt-3 pt-3 border-t border-gray-600/30">
                         <div className="flex items-center space-x-2 mb-2">
-                          <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
+                          <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
                           <span className="text-sm font-medium text-gray-400">
                             Transaction Hash
                           </span>
                         </div>
                         <div className="bg-dark-800/50 border border-gray-600/30 rounded-lg p-3">
-                          <code className="text-blue-300 text-xs break-all font-mono">
+                          <code className="text-gray-300 text-xs break-all font-mono">
                             {response.transactionHash || response.paymentStatus.transactionHash}
                           </code>
                         </div>
@@ -843,7 +843,7 @@ export default function TryOutPage() {
                             href={`https://hyperevmscan.io/tx/${response.transactionHash || response.paymentStatus.transactionHash}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="px-2 py-1 text-xs bg-blue-600 hover:bg-blue-500 text-white rounded transition-colors"
+                            className="px-2 py-1 text-xs bg-gray-600 hover:bg-gray-500 text-white rounded transition-colors"
                           >
                             View on HyperEVMScan
                           </a>

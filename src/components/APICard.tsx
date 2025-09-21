@@ -31,9 +31,9 @@ export default function APICard({ method, path, title, description, color, href,
           </span>
           <code className="text-sm font-mono text-gray-100 bg-dark-700/50 px-2 py-1 rounded border border-gray-600/50">{path}</code>
         </div>
-        <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-purple-400 group-hover:translate-x-1 transition-all duration-200" />
+        <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-gray-200 group-hover:translate-x-1 transition-all duration-200" />
       </div>
-      <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-purple-100 transition-colors duration-300">{title}</h3>
+      <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-gray-100 transition-colors duration-300">{title}</h3>
       <p className="text-gray-300 text-sm group-hover:text-gray-200 transition-colors duration-300 leading-relaxed">{description}</p>
     </>
   )

@@ -113,8 +113,8 @@ export default function HomePage() {
           </h1>
           <p className="text-xl md:text-2xl text-gray-300 mb-12 max-w-4xl mx-auto leading-relaxed">
             Enable seamless USDT0 transfers between agents using EIP-3009{' '}
-            <code className="bg-dark-800/50 text-purple-300 px-3 py-1 rounded-lg text-sm border border-purple-500/30 backdrop-blur-sm">transferWithAuthorization</code>{' '}
-            with <strong className="text-purple-400">facilitator-paid gas fees</strong>
+            <code className="bg-dark-800/50 text-gray-300 px-3 py-1 rounded-lg text-sm border border-gray-500/30 backdrop-blur-sm">transferWithAuthorization</code>{' '}
+            with <strong className="text-gray-300">facilitator-paid gas fees</strong>
           </p>
           <div className="flex flex-col sm:flex-row gap-6 justify-center animate-fade-in-up animate-stagger-1">
             <Link
@@ -160,32 +160,32 @@ export default function HomePage() {
           <div className="card">
             <div className="flex flex-col lg:flex-row items-center justify-between space-y-12 lg:space-y-0 lg:space-x-8">
               <div className="text-center group">
-                <div className="w-20 h-20 bg-gradient-to-br from-blue-500/20 to-blue-600/20 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-all duration-300 border border-blue-500/30">
-                  <Users className="w-10 h-10 text-blue-400" />
+                <div className="w-20 h-20 bg-gradient-to-br from-gray-500/20 to-gray-600/20 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-all duration-300 border border-gray-500/30">
+                  <Users className="w-10 h-10 text-gray-400" />
                 </div>
                 <h3 className="font-semibold text-white text-lg mb-2">Payer</h3>
                 <p className="text-sm text-gray-300">Signs authorization</p>
               </div>
               <ArrowRight className="w-8 h-8 text-gray-400 hidden lg:block animate-float" />
               <div className="text-center group">
-                <div className="w-20 h-20 bg-gradient-to-br from-green-500/20 to-green-600/20 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-all duration-300 border border-green-500/30">
-                  <Users className="w-10 h-10 text-green-400" />
+                <div className="w-20 h-20 bg-gradient-to-br from-gray-600/20 to-gray-700/20 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-all duration-300 border border-gray-600/30">
+                  <Users className="w-10 h-10 text-gray-400" />
                 </div>
                 <h3 className="font-semibold text-white text-lg mb-2">Receiver</h3>
                 <p className="text-sm text-gray-300">Receives payment</p>
               </div>
               <ArrowRight className="w-8 h-8 text-gray-400 hidden lg:block animate-float" />
               <div className="text-center group">
-                <div className="w-20 h-20 bg-gradient-to-br from-purple-500/20 to-purple-600/20 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-all duration-300 border border-purple-500/30">
-                  <Zap className="w-10 h-10 text-purple-400" />
+                <div className="w-20 h-20 bg-gradient-to-br from-gray-700/20 to-gray-800/20 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-all duration-300 border border-gray-700/30">
+                  <Zap className="w-10 h-10 text-gray-400" />
                 </div>
                 <h3 className="font-semibold text-white text-lg mb-2">Facilitator</h3>
                 <p className="text-sm text-gray-300">Pays gas & executes</p>
               </div>
               <ArrowRight className="w-8 h-8 text-gray-400 hidden lg:block animate-float" />
               <div className="text-center group">
-                <div className="w-20 h-20 bg-gradient-to-br from-yellow-500/20 to-yellow-600/20 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-all duration-300 border border-yellow-500/30">
-                  <Shield className="w-10 h-10 text-yellow-400" />
+                   <div className="w-20 h-20 bg-gradient-to-br from-gray-700/20 to-gray-800/20 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-all duration-300 border border-gray-700/30">
+                  <Shield className="w-10 h-10 text-gray-400" />
                 </div>
                 <h3 className="font-semibold text-white text-lg mb-2">HyperEVM</h3>
                 <p className="text-sm text-gray-300">USDT0 transfer</p>
@@ -216,8 +216,8 @@ export default function HomePage() {
           <div className="max-w-4xl mx-auto">
             <div className="card text-center">
               <div className="flex items-center justify-center mb-6">
-                <div className="w-16 h-16 bg-blue-500/20 rounded-2xl flex items-center justify-center mr-4">
-                  <Code className="w-8 h-8 text-blue-400" />
+                <div className="w-16 h-16 bg-gray-500/20 rounded-2xl flex items-center justify-center mr-4">
+                  <Code className="w-8 h-8 text-gray-400" />
                 </div>
                 <h3 className="text-2xl font-bold text-white">Just 2 API Endpoints</h3>
               </div>
@@ -227,23 +227,23 @@ export default function HomePage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
                 <div className="bg-gray-800/50 rounded-lg p-4">
                   <div className="flex items-center mb-3">
-                    <div className="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center mr-3">
-                      <span className="text-green-400 font-bold text-sm">1</span>
+                    <div className="w-8 h-8 bg-gray-500/20 rounded-lg flex items-center justify-center mr-3">
+                      <span className="text-gray-400 font-bold text-sm">1</span>
                     </div>
                     <h4 className="font-semibold text-white">Verify Payment</h4>
                   </div>
                   <p className="text-gray-400 text-sm">Check if payment is valid before settling</p>
-                  <code className="text-blue-400 text-xs">POST /facilitator/verify</code>
+                  <code className="text-gray-400 text-xs">POST /facilitator/verify</code>
                 </div>
                 <div className="bg-gray-800/50 rounded-lg p-4">
                   <div className="flex items-center mb-3">
-                    <div className="w-8 h-8 bg-purple-500/20 rounded-lg flex items-center justify-center mr-3">
-                      <span className="text-purple-400 font-bold text-sm">2</span>
+                    <div className="w-8 h-8 bg-gray-500/20 rounded-lg flex items-center justify-center mr-3">
+                      <span className="text-gray-400 font-bold text-sm">2</span>
                     </div>
                     <h4 className="font-semibold text-white">Settle Payment</h4>
                   </div>
                   <p className="text-gray-400 text-sm">Execute the payment (facilitator pays gas)</p>
-                  <code className="text-blue-400 text-xs">POST /facilitator/settle</code>
+                  <code className="text-gray-400 text-xs">POST /facilitator/settle</code>
                 </div>
               </div>
               <div className="mt-8">
@@ -272,7 +272,7 @@ export default function HomePage() {
           <div className="text-center mt-12">
             <Link
               href="/api"
-              className="inline-flex items-center text-purple-400 hover:text-purple-300 font-medium text-lg group"
+              className="inline-flex items-center text-gray-300 hover:text-gray-100 font-medium text-lg group"
             >
               View Complete API Reference
               <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform duration-200" />
@@ -289,15 +289,15 @@ export default function HomePage() {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
             <div className="text-center group">
-              <div className="text-3xl font-bold text-purple-400 mb-3 group-hover:text-purple-300 transition-colors duration-300">6 Decimals</div>
+              <div className="text-3xl font-bold text-gray-300 mb-3 group-hover:text-gray-100 transition-colors duration-300">6 Decimals</div>
               <div className="text-gray-300 group-hover:text-gray-200 transition-colors duration-300">Like USDC standard</div>
             </div>
             <div className="text-center group">
-              <div className="text-3xl font-bold text-purple-400 mb-3 group-hover:text-purple-300 transition-colors duration-300">Chain ID: 999</div>
+              <div className="text-3xl font-bold text-gray-300 mb-3 group-hover:text-gray-100 transition-colors duration-300">Chain ID: 999</div>
               <div className="text-gray-300 group-hover:text-gray-200 transition-colors duration-300">HyperEVM Network</div>
             </div>
             <div className="text-center group">
-              <div className="text-3xl font-bold text-purple-400 mb-3 group-hover:text-purple-300 transition-colors duration-300">EIP-3009</div>
+              <div className="text-3xl font-bold text-gray-300 mb-3 group-hover:text-gray-100 transition-colors duration-300">EIP-3009</div>
               <div className="text-gray-300 group-hover:text-gray-200 transition-colors duration-300">Transfer with Authorization</div>
             </div>
           </div>
