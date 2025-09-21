@@ -840,12 +840,12 @@ export default function TryOutPage() {
                             Copy
                           </button>
                           <a
-                            href={`https://app.hyperliquid.xyz/explorer/tx/${response.transactionHash || response.paymentStatus.transactionHash}`}
+                            href={`https://hyperevmscan.io/tx/${response.transactionHash || response.paymentStatus.transactionHash}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="px-2 py-1 text-xs bg-blue-600 hover:bg-blue-500 text-white rounded transition-colors"
                           >
-                            View on HyperEVM Explorer
+                            View on HyperEVMScan
                           </a>
                         </div>
                       </div>
