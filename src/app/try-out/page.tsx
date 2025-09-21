@@ -1,425 +1,516 @@
-'use client'
+"use client";
 
-import React, { useState, useCallback, useEffect } from 'react'
-import { Send, Wallet, Loader2, CheckCircle, AlertCircle, XCircle, Bot, Zap } from 'lucide-react'
-import { AIAPIClient, PaymentObject, APIResponse, convertToSmallestUnits } from '@/lib/ai-client'
-import { ethers } from 'ethers'
+import React, { useState, useCallback, useEffect } from "react";
+import {
+  Send,
+  Wallet,
+  Loader2,
+  CheckCircle,
+  AlertCircle,
+  XCircle,
+  Bot,
+  Zap,
+} from "lucide-react";
+import {
+  AIAPIClient,
+  PaymentObject,
+  APIResponse,
+  convertToSmallestUnits,
+} from "@/lib/ai-client";
+import { ethers } from "ethers";
 
 export default function TryOutPage() {
-  const [prompt, setPrompt] = useState('')
-  const [response, setResponse] = useState<APIResponse | null>(null)
-  const [loading, setLoading] = useState(false)
-  const [walletConnected, setWalletConnected] = useState(false)
-  const [walletAddress, setWalletAddress] = useState<string | null>(null)
-  const [walletConnecting, setWalletConnecting] = useState(false)
-  const [paymentAmount, setPaymentAmount] = useState('0.1') // Default 0.1 USDT0
-  const [isRabbyAvailable, setIsRabbyAvailable] = useState(false)
-  const [mounted, setMounted] = useState(false)
-  const [signing, setSigning] = useState(false)
+  const [prompt, setPrompt] = useState("");
+  const [response, setResponse] = useState<APIResponse | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [walletConnected, setWalletConnected] = useState(false);
+  const [walletAddress, setWalletAddress] = useState<string | null>(null);
+  const [walletConnecting, setWalletConnecting] = useState(false);
+  const [paymentAmount, setPaymentAmount] = useState("0.1"); // Default 0.1 USDT0
+  const [isRabbyAvailable, setIsRabbyAvailable] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const [signing, setSigning] = useState(false);
 
   // Test prompts for HyperEVM
   const testPrompts = [
     "What is HyperEVM and how does it work?",
     "Explain USDT0 token and its features on HyperEVM",
     "How do I deploy a smart contract on HyperEVM?",
-    "What are the gas fees like on HyperEVM compared to Ethereum?"
-  ]
+    "What are the gas fees like on HyperEVM compared to Ethereum?",
+  ];
 
   // Initialize API client
-  const aiClient = React.useMemo(() => new AIAPIClient(), [])
+  const aiClient = React.useMemo(() => new AIAPIClient(), []);
 
   // Check if Rabby wallet is available (client-side only)
   useEffect(() => {
-    setMounted(true)
-    
+    setMounted(true);
+
     // More robust Rabby detection that bypasses conflicts
     const detectRabby = () => {
-      if (typeof window === 'undefined') return false
-      
+      if (typeof window === "undefined") return false;
+
       // Method 1: Check if ethereum provider is Rabby
-      if (window.ethereum?.isRabby) return true
-      
+      if (window.ethereum?.isRabby) return true;
+
       // Method 2: Check for Rabby-specific properties
-      if ((window as any).rabby) return true
-      if ((window as any).rabbyWallet) return true
-      
+      if ((window as any).rabby) return true;
+      if ((window as any).rabbyWallet) return true;
+
       // Method 3: Check for Rabby in extensions (if accessible)
       try {
         if ((window.ethereum as any)?.providers) {
-          return (window.ethereum as any).providers.some((provider: any) => provider.isRabby)
+          return (window.ethereum as any).providers.some(
+            (provider: any) => provider.isRabby
+          );
         }
       } catch (e) {
         // Ignore errors
       }
-      
+
       // Method 4: Check for Rabby-specific methods
-      if (window.ethereum && typeof window.ethereum.request === 'function') {
+      if (window.ethereum && typeof window.ethereum.request === "function") {
         try {
           // Try to detect Rabby by checking for specific methods
-          return !!(window.ethereum as any).isRabby || 
-                 !!(window.ethereum as any).isRabbyWallet ||
-                 !!(window.ethereum as any).rabby
+          return (
+            !!(window.ethereum as any).isRabby ||
+            !!(window.ethereum as any).isRabbyWallet ||
+            !!(window.ethereum as any).rabby
+          );
         } catch (e) {
           // Ignore errors
         }
       }
-      
-      return false
-    }
-    
-    const isRabby = detectRabby()
-    setIsRabbyAvailable(isRabby)
-    
-    console.log('🔍 Wallet detection results:')
-    console.log('  window.ethereum exists:', !!window.ethereum)
-    console.log('  window.ethereum.isRabby:', window.ethereum?.isRabby)
-    console.log('  window.rabby exists:', !!(window as any).rabby)
-    console.log('  window.rabbyWallet exists:', !!(window as any).rabbyWallet)
-    console.log('  Final Rabby detection:', isRabby)
-    
+
+      return false;
+    };
+
+    const isRabby = detectRabby();
+    setIsRabbyAvailable(isRabby);
+
+
     // Check if wallet is already connected
     const checkWalletConnection = async () => {
       if (window.ethereum) {
         try {
-          const accounts = await window.ethereum.request({ method: 'eth_accounts' })
-          if (accounts && accounts.length > 0) {
-            setWalletAddress(accounts[0])
-            setWalletConnected(true)
-            console.log('Wallet already connected:', accounts[0])
-          }
+          const accounts = await window.ethereum.request({
+            method: "eth_accounts",
+          });
+           if (accounts && accounts.length > 0) {
+             setWalletAddress(accounts[0]);
+             setWalletConnected(true);
+           }
         } catch (error) {
-          console.error('Error checking wallet connection:', error)
+          console.error("Error checking wallet connection:", error);
         }
       }
-    }
-    
-    checkWalletConnection()
-  }, [])
+    };
+
+    checkWalletConnection();
+  }, []);
 
   // Listen for wallet account changes
   useEffect(() => {
-    if (!window.ethereum) return
+    if (!window.ethereum) return;
 
     const handleAccountsChanged = (accounts: string[]) => {
-      if (accounts.length > 0) {
-        setWalletAddress(accounts[0])
-        setWalletConnected(true)
-        console.log('Wallet account changed to:', accounts[0])
-      } else {
-        setWalletAddress(null)
-        setWalletConnected(false)
-        console.log('Wallet disconnected')
-      }
-    }
+       if (accounts.length > 0) {
+         setWalletAddress(accounts[0]);
+         setWalletConnected(true);
+       } else {
+         setWalletAddress(null);
+         setWalletConnected(false);
+       }
+    };
 
-    window.ethereum.on('accountsChanged', handleAccountsChanged)
-    
+    window.ethereum.on("accountsChanged", handleAccountsChanged);
+
     return () => {
       if (window.ethereum) {
-        window.ethereum.removeListener('accountsChanged', handleAccountsChanged)
+        window.ethereum.removeListener(
+          "accountsChanged",
+          handleAccountsChanged
+        );
       }
-    }
-  }, [])
+    };
+  }, []);
 
   // Helper function to get wallet provider
   const getWalletProvider = useCallback(() => {
-    if (typeof window === 'undefined') return null
-    return window.ethereum
-  }, [])
+    if (typeof window === "undefined") return null;
+    return window.ethereum;
+  }, []);
 
   const connectWallet = useCallback(async () => {
     if (!isRabbyAvailable) {
-      alert('Wallet not available. Please install a wallet like MetaMask or Rabby.')
-      return
+      alert(
+        "Wallet not available. Please install a wallet like MetaMask or Rabby."
+      );
+      return;
     }
 
-    setWalletConnecting(true)
+    setWalletConnecting(true);
     try {
-      const provider = getWalletProvider()
-      
+      const provider = getWalletProvider();
+
       if (!provider) {
-        throw new Error('No wallet provider found.')
+        throw new Error("No wallet provider found.");
       }
-      
+
       const accounts = await provider.request({
-        method: 'eth_requestAccounts'
-      })
-      
-      if (accounts && accounts.length > 0) {
-        setWalletAddress(accounts[0])
-        setWalletConnected(true)
-        console.log('✅ Wallet connected:', accounts[0])
-      }
+        method: "eth_requestAccounts",
+      });
+
+       if (accounts && accounts.length > 0) {
+         setWalletAddress(accounts[0]);
+         setWalletConnected(true);
+       }
     } catch (error) {
-      console.error('❌ Wallet connection error:', error)
-      if (error instanceof Error && error.message.includes('User rejected')) {
-        alert('Wallet connection was rejected. Please try again.')
+      console.error("❌ Wallet connection error:", error);
+      if (error instanceof Error && error.message.includes("User rejected")) {
+        alert("Wallet connection was rejected. Please try again.");
       } else {
-        alert('Failed to connect wallet. Please make sure your wallet is unlocked and try again.')
+        alert(
+          "Failed to connect wallet. Please make sure your wallet is unlocked and try again."
+        );
       }
     } finally {
-      setWalletConnecting(false)
+      setWalletConnecting(false);
     }
-  }, [isRabbyAvailable, getWalletProvider])
+  }, [isRabbyAvailable, getWalletProvider]);
 
   const disconnectWallet = useCallback(() => {
-    setWalletAddress(null)
-    setWalletConnected(false)
-  }, [])
+    setWalletAddress(null);
+    setWalletConnected(false);
+  }, []);
+
+  function formatNonce(nonce: string | number): string {
+    let n =
+      typeof nonce === "number" ? nonce.toString(16) : nonce.replace(/^0x/, "");
+    n = n.padStart(64, "0"); // 32 bytes = 64 hex chars
+    return "0x" + n;
+  }
 
   // Helper function for real EIP-3009 wallet signing
-  const signWithWallet = useCallback(async (authorization: any): Promise<string | null> => {
-    const provider = getWalletProvider()
-    
-    if (!provider) {
-      console.error('❌ No wallet provider available for signing')
-      return null
-    }
+  const signWithWallet = useCallback(
+    async (authorization: any): Promise<string | null> => {
+      const provider = getWalletProvider();
 
-    setSigning(true)
-    try {
-      // Ensure wallet is unlocked
-      const currentAccounts = await provider.request({ method: 'eth_requestAccounts' })
-      if (!currentAccounts || currentAccounts.length === 0) {
-        alert('No wallet accounts found. Please unlock your wallet and try again.')
-        return null
-      }
-      
-      const actualAddress = currentAccounts[0]
-      
-      // Verify address match
-      if (actualAddress.toLowerCase() !== authorization.from.toLowerCase()) {
-        alert(`Wallet address mismatch. Please reconnect your wallet.\nCurrent: ${actualAddress}\nExpected: ${authorization.from}`)
-        return null
-      }
-      
-      // EIP-712 domain and types (must match backend exactly)
-      // Use the SAME domain as your working backend script
-      const USDT0_ADDRESS = "0xB8CE59FC3717ada4C02eaDF9682A9e934F625ebb" // Match backend env variable
-      const domain = {
-        name: "USD₮0", // Match working backend exactly
-        version: "1",  // Exact match with backend
-        chainId: 999,  // Exact match with backend
-        verifyingContract: USDT0_ADDRESS // Exact match with backend
-      }
-      
-      console.log('🔐 EIP-712 domain:', domain)
-      
-      const types = {
-        TransferWithAuthorization: [
-          { name: "from", type: "address" },
-          { name: "to", type: "address" },
-          { name: "value", type: "uint256" },
-          { name: "validAfter", type: "uint256" },
-          { name: "validBefore", type: "uint256" },
-          { name: "nonce", type: "bytes32" } // Contract expects bytes32
-        ]
-      }
-      
-      console.log('🔐 EIP-712 types:', types)
-      
-      // Rabby wallet specific: Ensure addresses are properly checksummed
-      const checksumFrom = ethers.getAddress(authorization.from)
-      const checksumTo = ethers.getAddress(authorization.to)
-      
-      // Rabby wallet specific: Use checksummed addresses and proper types
-      const message = {
-        from: checksumFrom, // Use checksummed format for Rabby
-        to: checksumTo, // Use checksummed format for Rabby
-        value: authorization.value, // Keep as string directly (like backend)
-        validAfter: authorization.validAfter.toString(), // Convert number to string for uint256
-        validBefore: authorization.validBefore.toString(), // Convert number to string for uint256
-        nonce: authorization.nonce // Keep as hex string for bytes32
-      }
-      
-      const data = {
-        domain,
-        types,
-        primaryType: "TransferWithAuthorization",
-        message
-      }
-      
-      console.log('🔐 EIP-712 data being signed:', JSON.stringify(data, null, 2))
-      
-      // DEBUG: Show exact message for backend comparison
-      console.log('🔍 EXACT MESSAGE FOR BACKEND COMPARISON:')
-      console.log('Authorization object:', JSON.stringify(authorization))
-      
-      
-      
-      // Prepare the exact data structure Rabby expects
-      const signingData = {
-        domain,
-        types,
-        primaryType: "TransferWithAuthorization",
-        message
-      }
-      
-      let signature: string
-      
-      try {
-        console.log('🔐 Requesting signature from Rabby...')
-        
-        signature = await provider.request({
-          method: 'eth_signTypedData_v4',
-          params: [actualAddress, JSON.stringify(signingData)]
-        })
-        
-        console.log('✅ Signature received:', signature)
-      } catch (error) {
-        console.error('❌ Signing failed:', error)
-        throw error
-      }
-      
-      
-      // Verify address match
-      if (actualAddress.toLowerCase() !== authorization.from.toLowerCase()) {
-        throw new Error('Signature address mismatch!')
-      }
-      
-      return signature
-      
-    } catch (error) {
-      console.error('Signing error:', error)
-      if (error instanceof Error && error.message.includes('User rejected')) {
-        alert('Payment signature was rejected. Please try again.')
-      } else {
-        alert('Failed to sign payment. Please make sure your wallet is unlocked and try again.')
-      }
-      return null
-    } finally {
-      setSigning(false)
-    }
-  }, [getWalletProvider])
-
-  const generatePaymentObject = useCallback(async (): Promise<PaymentObject | null> => {
-    if (!window.ethereum) {
-      alert('No wallet available')
-      return null
-    }
-
-    try {
-      // Get the wallet provider
-      const provider = getWalletProvider()
-      
       if (!provider) {
-        alert('No wallet provider found. Please make sure your wallet is installed.')
-        return null
-      }
-      
-      // Get the wallet address
-      const currentAccounts = await provider.request({ method: 'eth_accounts' })
-      if (!currentAccounts || currentAccounts.length === 0) {
-        alert('No wallet accounts found. Please connect your wallet.')
-        return null
-      }
-      
-      const actualAddress = currentAccounts[0]
-      
-      // Update the stored wallet address if needed
-      if (actualAddress.toLowerCase() !== walletAddress?.toLowerCase()) {
-        setWalletAddress(actualAddress)
-        setWalletConnected(true)
-      }
-      
-      // Use the receiver address (where payment actually goes) - match backend exactly
-      const receiverAddress = '0xA15e55079e01267676157869B1D0A3026aC280Ee'
-      
-      // Convert USDT0 amount to smallest units (6 decimals)
-      const value = convertToSmallestUnits(paymentAmount)
-      
-      // Generate nonce as bytes32 (32 random bytes)
-      const nonce = ethers.hexlify(ethers.randomBytes(32))
-      const now = Math.floor(Date.now() / 1000)
-      
-      // Use the SAME timing as backend: validAfter = now
-      const validAfter = now // Match backend exactly
-      const validBefore = now + 3600 // 1 hour from now
-      
-      // Create authorization object with proper types
-      const authorization = {
-        from: actualAddress, // Use the actual wallet address
-        to: receiverAddress, // Use receiver address (where payment goes) - match backend
-        value: value, // Keep as string for JSON serialization (will be converted to BigInt in EIP-712)
-        validAfter: validAfter, // Keep as number for uint256
-        validBefore: validBefore, // Keep as number for uint256
-        nonce: nonce // Keep as hex string for bytes32
+        console.error("❌ No wallet provider available for signing");
+        return null;
       }
 
-      console.log('💰 Creating payment authorization...')
-      const signature = await signWithWallet(authorization)
-      
-      if (!signature) {
-        alert('Failed to get signature from wallet')
-        return null
-      }
-      
-      // Create the payment object
-      const paymentObject = {
-        signature,
-        authorization: {
-          from: authorization.from,
-          to: authorization.to,
+      setSigning(true);
+      try {
+        // Ensure wallet is unlocked
+        const currentAccounts = await provider.request({
+          method: "eth_requestAccounts",
+        });
+        if (!currentAccounts || currentAccounts.length === 0) {
+          alert(
+            "No wallet accounts found. Please unlock your wallet and try again."
+          );
+          return null;
+        }
+
+        const actualAddress = currentAccounts[0];
+
+        // Verify address match
+        if (actualAddress.toLowerCase() !== authorization.from.toLowerCase()) {
+          alert(
+            `Wallet address mismatch. Please reconnect your wallet.\nCurrent: ${actualAddress}\nExpected: ${authorization.from}`
+          );
+          return null;
+        }
+
+         // EIP-712 domain and types - fetch from contract on-chain
+         const USDT0_ADDRESS = "0xB8CE59FC3717ada4C02eaDF9682A9e934F625ebb";
+         
+         // Create a provider to fetch contract info
+         const rpcProvider = new ethers.JsonRpcProvider('https://rpc.hyperliquid.xyz/evm');
+         
+         // Fetch domain info from contract on-chain
+         let domainName = "USD₮0"; // fallback
+         let domainVersion = "1"; // fallback
+         
+         try {
+           // Try to fetch domain info from contract
+           const contract = new ethers.Contract(USDT0_ADDRESS, [
+             "function name() view returns (string)",
+             "function version() view returns (string)",
+             "function DOMAIN_SEPARATOR() view returns (bytes32)"
+           ], rpcProvider);
+           
+           try {
+             domainName = await contract.name();
+           } catch (e) {
+             // Use fallback
+           }
+           
+           try {
+             domainVersion = await contract.version();
+           } catch (e) {
+             // Use fallback
+           }
+         } catch (contractError) {
+           // Use fallback values
+         }
+
+         const domain = {
+           name: domainName,
+           version: domainVersion,
+           chainId: 999,
+           verifyingContract: USDT0_ADDRESS,
+         };
+
+        const types = {
+          TransferWithAuthorization: [
+            { name: "from", type: "address" },
+            { name: "to", type: "address" },
+            { name: "value", type: "uint256" },
+            { name: "validAfter", type: "uint256" },
+            { name: "validBefore", type: "uint256" },
+            { name: "nonce", type: "bytes32" },
+          ],
+        };
+        
+        // For RPC fallback, include EIP712Domain
+        const typesWithDomain = {
+          EIP712Domain: [
+            { name: 'name', type: 'string' },
+            { name: 'version', type: 'string' },
+            { name: 'chainId', type: 'uint256' },
+            { name: 'verifyingContract', type: 'address' },
+          ],
+          TransferWithAuthorization: [
+            { name: "from", type: "address" },
+            { name: "to", type: "address" },
+            { name: "value", type: "uint256" },
+            { name: "validAfter", type: "uint256" },
+            { name: "validBefore", type: "uint256" },
+            { name: "nonce", type: "bytes32" },
+          ],
+        };
+
+        // Ensure addresses are properly checksummed
+        const checksumFrom = ethers.getAddress(authorization.from);
+        const checksumTo = ethers.getAddress(authorization.to);
+
+        // Use checksummed addresses and proper types
+        const message = {
+          from: checksumFrom,
+          to: checksumTo,
           value: authorization.value.toString(),
           validAfter: authorization.validAfter.toString(),
           validBefore: authorization.validBefore.toString(),
-          nonce: authorization.nonce
+          nonce: formatNonce(authorization.nonce),
+        };
+
+        // Prepare the signing data
+        const signingData = {
+          domain,
+          types,
+          primaryType: "TransferWithAuthorization",
+          message,
+        };
+
+        let signature: string;
+
+         try {
+           // Use signer's _signTypedData to ensure address and signature source can't diverge
+           const walletSigner = new ethers.BrowserProvider(provider).getSigner();
+           const signer = await walletSigner;
+           
+           signature = await signer.signTypedData(domain, types, message);
+         } catch (signerError) {
+           // Fallback to RPC method if signer method fails
+           const rpcSigningData = {
+             domain,
+             types: typesWithDomain, // Use types with EIP712Domain for RPC
+             primaryType: "TransferWithAuthorization",
+             message,
+           };
+           
+           signature = await provider.request({
+             method: "eth_signTypedData_v4",
+             params: [actualAddress, JSON.stringify(rpcSigningData)],
+           });
+         }
+
+
+        return signature;
+      } catch (error) {
+        console.error("Signing error:", error);
+        if (error instanceof Error && error.message.includes("User rejected")) {
+          alert("Payment signature was rejected. Please try again.");
+        } else if (
+          error instanceof Error &&
+          error.message.includes("chainId")
+        ) {
+          alert(
+            "Please switch your wallet to HyperEVM network (Chain ID: 999)"
+          );
+        } else if (
+          error instanceof Error &&
+          error.message.includes("Signature address mismatch")
+        ) {
+          alert("Wallet address mismatch. Please reconnect your wallet.");
+        } else {
+          // Show the actual error message for debugging
+          const errorMessage =
+            error instanceof Error ? error.message : "Unknown error";
+          alert(
+            `Signing failed: ${errorMessage}\n\nPlease check console for details.`
+          );
         }
+        return null;
+      } finally {
+        setSigning(false);
+      }
+    },
+    [getWalletProvider]
+  );
+
+  const generatePaymentObject =
+    useCallback(async (): Promise<PaymentObject | null> => {
+      if (!window.ethereum) {
+        alert("No wallet available");
+        return null;
       }
 
-      console.log('✅ Payment object created successfully')
-      
-      return paymentObject
-    } catch (error) {
-      alert(`Failed to generate payment: ${error instanceof Error ? error.message : 'Unknown error'}`)
-      return null
-    }
-  }, [walletAddress, paymentAmount, signWithWallet, getWalletProvider])
+      try {
+        // Get the wallet provider
+        const provider = getWalletProvider();
+
+        if (!provider) {
+          alert(
+            "No wallet provider found. Please make sure your wallet is installed."
+          );
+          return null;
+        }
+
+        // Get the wallet address
+        const currentAccounts = await provider.request({
+          method: "eth_accounts",
+        });
+        if (!currentAccounts || currentAccounts.length === 0) {
+          alert("No wallet accounts found. Please connect your wallet.");
+          return null;
+        }
+
+        const actualAddress = currentAccounts[0];
+
+        // Update the stored wallet address if needed
+        if (actualAddress.toLowerCase() !== walletAddress?.toLowerCase()) {
+          setWalletAddress(actualAddress);
+          setWalletConnected(true);
+        }
+
+        // Use the receiver address (where payment actually goes) - match backend exactly
+        const receiverAddress = "0xA15e55079e01267676157869B1D0A3026aC280Ee";
+
+        // Convert USDT0 amount to smallest units (6 decimals)
+        const value = convertToSmallestUnits(paymentAmount);
+
+        // Generate nonce exactly like backend: ethers.utils.hexlify(ethers.utils.randomBytes(32))
+        const nonce = ethers.hexlify(ethers.randomBytes(32)); // Same as ethers.utils.hexlify(ethers.utils.randomBytes(32)) in v6
+        const now = Math.floor(Date.now() / 1000);
+
+        // Use the SAME timing as backend: validAfter = now
+        const validAfter = now; // Match backend exactly
+        const validBefore = now + 3600; // 1 hour from now
+
+        // Create authorization object with proper types
+        const authorization = {
+          from: actualAddress, // Use the actual wallet address
+          to: receiverAddress, // Use receiver address (where payment goes) - match backend
+          value: value, // Keep as string for JSON serialization (will be converted to BigInt in EIP-712)
+          validAfter: validAfter, // Keep as number for uint256
+          validBefore: validBefore, // Keep as number for uint256
+          nonce: nonce, // Keep as hex string for bytes32
+        };
+
+        const signature = await signWithWallet(authorization);
+
+        if (!signature) {
+          alert("Failed to get signature from wallet");
+          return null;
+        }
+
+        // Create the payment object
+        const paymentObject = {
+          signature,
+          authorization: {
+            from: authorization.from,
+            to: authorization.to,
+            value: authorization.value.toString(),
+            validAfter: authorization.validAfter.toString(),
+            validBefore: authorization.validBefore.toString(),
+            nonce: authorization.nonce,
+          },
+        };
+
+        return paymentObject;
+      } catch (error) {
+        alert(
+          `Failed to generate payment: ${
+            error instanceof Error ? error.message : "Unknown error"
+          }`
+        );
+        return null;
+      }
+    }, [walletAddress, paymentAmount, signWithWallet, getWalletProvider]);
 
   const callAI = useCallback(async () => {
-    if (!prompt.trim()) return
+    if (!prompt.trim()) return;
 
-    setLoading(true)
-    setResponse(null)
+    setLoading(true);
+    setResponse(null);
 
     try {
-      let payment: PaymentObject | null = null
-      
+      let payment: PaymentObject | null = null;
+
       if (walletConnected) {
-        payment = await generatePaymentObject()
+        payment = await generatePaymentObject();
         if (!payment) {
           setResponse({
             success: false,
-            error: 'Failed to generate payment',
-            timestamp: new Date().toISOString()
-          })
-          setLoading(false)
-          return
+            error: "Failed to generate payment",
+            timestamp: new Date().toISOString(),
+          });
+          setLoading(false);
+          return;
         }
       }
 
       // Use the API client instead of direct fetch
-      const apiResponse = await aiClient.callAI(prompt.trim(), payment || undefined)
-      setResponse(apiResponse)
+      const apiResponse = await aiClient.callAI(
+        prompt.trim(),
+        payment || undefined
+      );
+      setResponse(apiResponse);
     } catch (error) {
       setResponse({
         success: false,
-        error: `Network error: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        timestamp: new Date().toISOString()
-      })
+        error: `Network error: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`,
+        timestamp: new Date().toISOString(),
+      });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [prompt, walletConnected, generatePaymentObject, aiClient])
+  }, [prompt, walletConnected, generatePaymentObject, aiClient]);
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    callAI()
-  }
+    e.preventDefault();
+    callAI();
+  };
 
   const handleTestPromptClick = (prompt: string) => {
-    setPrompt(prompt)
-  }
+    setPrompt(prompt);
+  };
 
   return (
     <div className="min-h-screen bg-dark-950 overflow-x-hidden">
@@ -432,29 +523,39 @@ export default function TryOutPage() {
                 <Bot className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
               </div>
               <div className="text-center sm:text-left">
-                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-2">Try Out AI API</h1>
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-2">
+                  Try Out AI API
+                </h1>
                 <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-2">
-                  <span className="text-gray-400 text-sm sm:text-base">Powered by</span>
+                  <span className="text-gray-400 text-sm sm:text-base">
+                    Powered by
+                  </span>
                   <div className="flex items-center space-x-1 bg-gray-800 px-2 py-1 rounded-lg">
                     <div className="w-3 h-3 sm:w-4 sm:h-4 bg-green-500 rounded-sm flex items-center justify-center">
                       <span className="text-white text-xs font-bold">AI</span>
                     </div>
-                    <span className="text-white font-semibold text-sm sm:text-base">OpenAI</span>
+                    <span className="text-white font-semibold text-sm sm:text-base">
+                      OpenAI
+                    </span>
                   </div>
-                  <span className="text-gray-400 text-sm sm:text-base">• USDT0 Payment Required</span>
+                  <span className="text-gray-400 text-sm sm:text-base">
+                    • USDT0 Payment Required
+                  </span>
                 </div>
               </div>
             </div>
           </div>
-          
+
           <div className="bg-dark-800/50 border border-gray-700/50 rounded-xl p-4 sm:p-6 max-w-2xl mx-auto">
             <div className="flex items-center justify-center space-x-2 mb-3">
               <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400" />
-              <span className="text-yellow-400 font-semibold text-sm sm:text-base">Real-time AI Processing</span>
+              <span className="text-yellow-400 font-semibold text-sm sm:text-base">
+                Real-time AI Processing
+              </span>
             </div>
             <p className="text-gray-300 text-xs sm:text-sm text-center">
-              Connect your wallet to pay with USDT0 and get AI responses powered by OpenAI. 
-              Minimum payment: 0.1 USDT0 per request.
+              Connect your wallet to pay with USDT0 and get AI responses powered
+              by OpenAI. Minimum payment: 0.1 USDT0 per request.
             </p>
           </div>
         </div>
@@ -465,19 +566,22 @@ export default function TryOutPage() {
             <div className="flex items-center space-x-3">
               <Wallet className="w-5 h-5 sm:w-6 sm:h-6 text-blue-400" />
               <div>
-                <h3 className="text-base sm:text-lg font-semibold text-white">Wallet Connection</h3>
+                <h3 className="text-base sm:text-lg font-semibold text-white">
+                  Wallet Connection
+                </h3>
                 <p className="text-gray-400 text-xs sm:text-sm">
-                  {!mounted ? (
-                    'Loading...'
-                  ) : walletConnected ? (
-                    `Connected: ${walletAddress?.slice(0, 6)}...${walletAddress?.slice(-4)}`
-                  ) : (
-                    'Connect your wallet to make payments'
-                  )}
+                  {!mounted
+                    ? "Loading..."
+                    : walletConnected
+                    ? `Connected: ${walletAddress?.slice(
+                        0,
+                        6
+                      )}...${walletAddress?.slice(-4)}`
+                    : "Connect your wallet to make payments"}
                 </p>
               </div>
             </div>
-            
+
             {!walletConnected ? (
               <button
                 onClick={connectWallet}
@@ -492,14 +596,18 @@ export default function TryOutPage() {
                 ) : !mounted ? (
                   <span>Loading...</span>
                 ) : (
-                  <span>{isRabbyAvailable ? 'Connect Wallet' : 'Install Wallet'}</span>
+                  <span>
+                    {isRabbyAvailable ? "Connect Wallet" : "Install Wallet"}
+                  </span>
                 )}
               </button>
             ) : (
               <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-3">
                 <div className="flex items-center space-x-2">
                   <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-green-400" />
-                  <span className="text-green-400 font-medium text-sm sm:text-base">Connected</span>
+                  <span className="text-green-400 font-medium text-sm sm:text-base">
+                    Connected
+                  </span>
                 </div>
                 <button
                   onClick={disconnectWallet}
@@ -597,7 +705,9 @@ export default function TryOutPage() {
           <div className="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-gray-700/50">
             <div className="flex items-center space-x-2 mb-3">
               <Zap className="w-4 h-4 text-yellow-400" />
-              <h4 className="text-sm font-medium text-gray-300">Quick Test Prompts</h4>
+              <h4 className="text-sm font-medium text-gray-300">
+                Quick Test Prompts
+              </h4>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {testPrompts.map((prompt, index) => (
@@ -622,29 +732,45 @@ export default function TryOutPage() {
                   <XCircle className="w-5 h-5 text-red-400" />
                 )}
                 <h3 className="text-lg font-semibold text-white">
-                  {response.success ? 'AI Response' : 'Error'}
+                  {response.success ? "AI Response" : "Error"}
                 </h3>
               </div>
 
               {response.success ? (
                 <div className="space-y-4">
                   <div className="bg-dark-700/50 border border-gray-600/50 rounded-lg p-4">
-                    <p className="text-gray-300 whitespace-pre-wrap">{response.data}</p>
+                    <p className="text-gray-300 whitespace-pre-wrap">
+                      {response.data}
+                    </p>
                   </div>
-                  
+
                   <div className="bg-dark-700/30 border border-gray-600/30 rounded-lg p-4">
-                    <h4 className="text-sm font-medium text-gray-400 mb-3">Payment Status</h4>
+                    <h4 className="text-sm font-medium text-gray-400 mb-3">
+                      Payment Status
+                    </h4>
                     <div className="grid grid-cols-2 gap-4 text-sm mb-3">
                       <div className="flex items-center space-x-2">
                         <span className="text-gray-500">Verified:</span>
-                        <span className={response.paymentStatus.verified ? 'text-green-400' : 'text-red-400'}>
-                          {response.paymentStatus.verified ? 'Yes' : 'No'}
+                        <span
+                          className={
+                            response.paymentStatus.verified
+                              ? "text-green-400"
+                              : "text-red-400"
+                          }
+                        >
+                          {response.paymentStatus.verified ? "Yes" : "No"}
                         </span>
                       </div>
                       <div className="flex items-center space-x-2">
                         <span className="text-gray-500">Settled:</span>
-                        <span className={response.paymentStatus.settled ? 'text-green-400' : 'text-red-400'}>
-                          {response.paymentStatus.settled ? 'Yes' : 'No'}
+                        <span
+                          className={
+                            response.paymentStatus.settled
+                              ? "text-green-400"
+                              : "text-red-400"
+                          }
+                        >
+                          {response.paymentStatus.settled ? "Yes" : "No"}
                         </span>
                       </div>
                     </div>
@@ -652,7 +778,9 @@ export default function TryOutPage() {
                       <div className="mt-3 pt-3 border-t border-gray-600/30">
                         <div className="flex items-center space-x-2 mb-2">
                           <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-                          <span className="text-sm font-medium text-gray-400">Transaction Hash</span>
+                          <span className="text-sm font-medium text-gray-400">
+                            Transaction Hash
+                          </span>
                         </div>
                         <div className="bg-dark-800/50 border border-gray-600/30 rounded-lg p-3">
                           <code className="text-blue-300 text-xs break-all font-mono">
@@ -661,7 +789,11 @@ export default function TryOutPage() {
                         </div>
                         <div className="mt-2 flex space-x-2">
                           <button
-                            onClick={() => navigator.clipboard.writeText(response.paymentStatus.transactionHash!)}
+                            onClick={() =>
+                              navigator.clipboard.writeText(
+                                response.paymentStatus.transactionHash!
+                              )
+                            }
                             className="px-2 py-1 text-xs bg-gray-600 hover:bg-gray-500 text-white rounded transition-colors"
                           >
                             Copy
@@ -684,13 +816,19 @@ export default function TryOutPage() {
                   <div className="flex items-start space-x-2">
                     <AlertCircle className="w-5 h-5 text-red-400 mt-0.5 flex-shrink-0" />
                     <div className="flex-1 min-w-0">
-                      <p className="text-red-400 font-medium break-words">{response.error}</p>
-                      {'message' in response && response.message && (
+                      <p className="text-red-400 font-medium break-words">
+                        {response.error}
+                      </p>
+                      {"message" in response && response.message && (
                         <div className="mt-2">
                           <details className="text-red-300 text-sm">
-                            <summary className="cursor-pointer hover:text-red-200">Show Details</summary>
+                            <summary className="cursor-pointer hover:text-red-200">
+                              Show Details
+                            </summary>
                             <div className="mt-2 p-3 bg-red-900/30 rounded border max-h-40 overflow-y-auto">
-                              <pre className="text-xs whitespace-pre-wrap break-words">{response.message}</pre>
+                              <pre className="text-xs whitespace-pre-wrap break-words">
+                                {response.message}
+                              </pre>
                             </div>
                           </details>
                         </div>
@@ -709,13 +847,14 @@ export default function TryOutPage() {
         {/* Footer Info */}
         <div className="mt-6 sm:mt-8 text-center text-xs sm:text-sm text-gray-500 px-4">
           <p>
-            This demo uses the USDT0 Facilitator API with OpenAI integration. 
-            Payments are processed on HyperEVM using EIP-3009 transferWithAuthorization.
+            This demo uses the USDT0 Facilitator API with OpenAI integration.
+            Payments are processed on HyperEVM using EIP-3009
+            transferWithAuthorization.
           </p>
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 // Extend Window interface for TypeScript
@@ -725,19 +864,29 @@ declare global {
       isRabby?: boolean;
       request: (args: { method: string; params?: any[] }) => Promise<any>;
       on: (event: string, callback: (...args: any[]) => void) => void;
-      removeListener: (event: string, callback: (...args: any[]) => void) => void;
+      removeListener: (
+        event: string,
+        callback: (...args: any[]) => void
+      ) => void;
     };
     rabby?: {
       isRabby?: boolean;
       request: (args: { method: string; params?: any[] }) => Promise<any>;
       on: (event: string, callback: (...args: any[]) => void) => void;
-      removeListener: (event: string, callback: (...args: any[]) => void) => void;
+      removeListener: (
+        event: string,
+        callback: (...args: any[]) => void
+      ) => void;
     };
     rabbyWallet?: {
       isRabby?: boolean;
       request: (args: { method: string; params?: any[] }) => Promise<any>;
       on: (event: string, callback: (...args: any[]) => void) => void;
-      removeListener: (event: string, callback: (...args: any[]) => void) => void;
+      removeListener: (
+        event: string,
+        callback: (...args: any[]) => void
+      ) => void;
     };
   }
 }
+
