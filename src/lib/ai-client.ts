@@ -15,12 +15,13 @@ export interface PaymentObject {
 
 export interface AIRequest {
   prompt: string;
-  payment?: PaymentObject;
+  provider?: "openai" | "claude";
 }
 
 export interface AIResponse {
   success: true;
   data: string;
+  transactionHash?: string;
   paymentStatus: {
     verified: boolean;
     settled: boolean;
@@ -58,7 +59,7 @@ export class AIAPIClient {
     this.baseUrl = baseUrl || API_ENDPOINTS.AI.replace('/facilitator/ai', '');
   }
 
-  async callAI(prompt: string, payment?: PaymentObject): Promise<APIResponse> {
+  async callAI(prompt: string, payment?: PaymentObject, provider?: "openai" | "claude"): Promise<APIResponse> {
     try {
       // Create headers object
       const headers: Record<string, string> = {
@@ -80,9 +81,10 @@ export class AIAPIClient {
         headers['X-Payment'] = encodedPayment;
       }
       
-      // Request body only contains prompt
+      // Request body contains prompt and provider
       const requestBody = {
-        prompt
+        prompt,
+        provider: provider || "openai" // Default to OpenAI if not specified
       };
       
       console.log('🚀 Sending AI request to:', API_ENDPOINTS.AI);

@@ -30,6 +30,7 @@ export default function TryOutPage() {
   const [isRabbyAvailable, setIsRabbyAvailable] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [signing, setSigning] = useState(false);
+  const [provider, setProvider] = useState<"openai" | "claude">("openai");
 
   // Test prompts for HyperEVM
   const testPrompts = [
@@ -487,7 +488,8 @@ export default function TryOutPage() {
       // Use the API client instead of direct fetch
       const apiResponse = await aiClient.callAI(
         prompt.trim(),
-        payment || undefined
+        payment || undefined,
+        provider
       );
       setResponse(apiResponse);
     } catch (error) {
@@ -501,7 +503,7 @@ export default function TryOutPage() {
     } finally {
       setLoading(false);
     }
-  }, [prompt, walletConnected, generatePaymentObject, aiClient]);
+  }, [prompt, walletConnected, generatePaymentObject, aiClient, provider]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -535,7 +537,7 @@ export default function TryOutPage() {
                       <span className="text-white text-xs font-bold">AI</span>
                     </div>
                     <span className="text-white font-semibold text-sm sm:text-base">
-                      OpenAI
+                      {provider === "openai" ? "OpenAI" : "Claude"}
                     </span>
                   </div>
                   <span className="text-gray-400 text-sm sm:text-base">
@@ -555,7 +557,7 @@ export default function TryOutPage() {
             </div>
             <p className="text-gray-300 text-xs sm:text-sm text-center">
               Connect your wallet to pay with USDT0 and get AI responses powered
-              by OpenAI. Minimum payment: 0.1 USDT0 per request.
+              by {provider === "openai" ? "OpenAI" : "Claude"}. Minimum payment: 0.1 USDT0 per request.
             </p>
           </div>
         </div>
@@ -644,6 +646,45 @@ export default function TryOutPage() {
         {/* AI Interface */}
         <div className="bg-dark-800/50 border border-gray-700/50 rounded-xl p-4 sm:p-6">
           <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+            {/* AI Provider Selection */}
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                AI Provider
+              </label>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setProvider("openai")}
+                  className={`flex items-center justify-center space-x-2 px-4 py-3 rounded-lg border transition-all duration-200 ${
+                    provider === "openai"
+                      ? "bg-blue-600 border-blue-500 text-white"
+                      : "bg-dark-700/50 border-gray-600 text-gray-300 hover:border-gray-500"
+                  }`}
+                  disabled={loading || signing}
+                >
+                  <div className="w-4 h-4 bg-green-500 rounded-sm flex items-center justify-center">
+                    <span className="text-white text-xs font-bold">AI</span>
+                  </div>
+                  <span className="font-medium">OpenAI</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setProvider("claude")}
+                  className={`flex items-center justify-center space-x-2 px-4 py-3 rounded-lg border transition-all duration-200 ${
+                    provider === "claude"
+                      ? "bg-purple-600 border-purple-500 text-white"
+                      : "bg-dark-700/50 border-gray-600 text-gray-300 hover:border-gray-500"
+                  }`}
+                  disabled={loading || signing}
+                >
+                  <div className="w-4 h-4 bg-purple-500 rounded-sm flex items-center justify-center">
+                    <span className="text-white text-xs font-bold">C</span>
+                  </div>
+                  <span className="font-medium">Claude</span>
+                </button>
+              </div>
+            </div>
+
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-2">
                 Ask the AI anything
@@ -662,7 +703,7 @@ export default function TryOutPage() {
               <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm text-gray-400">
                 <div className="flex items-center space-x-1">
                   <Bot className="w-3 h-3 sm:w-4 sm:h-4" />
-                  <span>OpenAI GPT</span>
+                  <span>{provider === "openai" ? "OpenAI GPT" : "Claude"}</span>
                 </div>
                 <div className="flex items-center space-x-1">
                   <Zap className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -774,7 +815,7 @@ export default function TryOutPage() {
                         </span>
                       </div>
                     </div>
-                    {response.paymentStatus.transactionHash && (
+                    {(response.transactionHash || response.paymentStatus.transactionHash) && (
                       <div className="mt-3 pt-3 border-t border-gray-600/30">
                         <div className="flex items-center space-x-2 mb-2">
                           <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
@@ -784,14 +825,14 @@ export default function TryOutPage() {
                         </div>
                         <div className="bg-dark-800/50 border border-gray-600/30 rounded-lg p-3">
                           <code className="text-blue-300 text-xs break-all font-mono">
-                            {response.paymentStatus.transactionHash}
+                            {response.transactionHash || response.paymentStatus.transactionHash}
                           </code>
                         </div>
                         <div className="mt-2 flex space-x-2">
                           <button
                             onClick={() =>
                               navigator.clipboard.writeText(
-                                response.paymentStatus.transactionHash!
+                                (response.transactionHash || response.paymentStatus.transactionHash)!
                               )
                             }
                             className="px-2 py-1 text-xs bg-gray-600 hover:bg-gray-500 text-white rounded transition-colors"
@@ -799,12 +840,12 @@ export default function TryOutPage() {
                             Copy
                           </button>
                           <a
-                            href={`https://etherscan.io/tx/${response.paymentStatus.transactionHash}`}
+                            href={`https://app.hyperliquid.xyz/explorer/tx/${response.transactionHash || response.paymentStatus.transactionHash}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="px-2 py-1 text-xs bg-blue-600 hover:bg-blue-500 text-white rounded transition-colors"
                           >
-                            View on Etherscan
+                            View on HyperEVM Explorer
                           </a>
                         </div>
                       </div>
@@ -847,7 +888,7 @@ export default function TryOutPage() {
         {/* Footer Info */}
         <div className="mt-6 sm:mt-8 text-center text-xs sm:text-sm text-gray-500 px-4">
           <p>
-            This demo uses the USDT0 Facilitator API with OpenAI integration.
+            This demo uses the USDT0 Facilitator API with OpenAI and Claude integration.
             Payments are processed on HyperEVM using EIP-3009
             transferWithAuthorization.
           </p>
